@@ -162,14 +162,17 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
     {
       const container = section('ClientSettings.Chats');
 
-      const checkbox = new CheckboxField({
-        text: 'ClientSettings.Chats.ShowSecondsOnMessages',
-        name: 'client-chats-show-seconds',
-        stateKey: joinDeepPath('settings', 'client', 'chats', 'showSecondsOnMessages'),
+      const row = new Row({
+        titleLangKey: 'ClientSettings.Chats.ShowSecondsOnMessages',
+        checkboxField: new CheckboxField({
+          name: 'client-chats-show-seconds',
+          stateKey: joinDeepPath('settings', 'client', 'chats', 'showSecondsOnMessages'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
         listenerSetter: this.listenerSetter
       });
 
-      const row = CreateRowFromCheckboxField(checkbox);
       container.append(row.container);
     }
 
