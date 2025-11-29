@@ -3,6 +3,22 @@
   "MyApp.Custom.ItemsCount": {
     "one_value": "%d элемент",
     "other_value": "%d элементов"
-  }
-}
+  },
 
+  "ClientSettings.MenuTitle": "Настройки клиента",
+  "ClientSettings.GhostMode": "Режим призрака",
+  "ClientSettings.GhostMode.Count": "%1$d/%2$d",
+  "ClientSettings.GhostMode.DontReadMessages": "Не читать сообщения",
+  "ClientSettings.GhostMode.DontReadStories": "Не читать истории",
+  "ClientSettings.GhostMode.DontSendOnline": "Не отправлять онлайн-статус",
+  "ClientSettings.GhostMode.DontSendTyping": "Не отправлять набор текста",
+  "ClientSettings.GhostMode.GoOfflineAutomatically": "Автоматически уходить офлайн",
+
+  "ClientSettings.Chats": "Чаты",
+  "ClientSettings.Chats.ShowSecondsOnMessages": "Показывать секунды у сообщений",
+
+  "ClientSettings.Other": "Другое",
+  "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
+  "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",
+  "ClientSettings.Other.OpenTgc.Button": "Открыть канал"
+}

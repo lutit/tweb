@@ -3842,7 +3842,24 @@ const lang = {
   'BirthdaySuggestOutgoing': 'You suggested %s to add a birthday',
   'BirthdaySuggestIncoming': '%s suggested you add your birthday',
   'BirthdaySuggestView': 'View',
-  'TonGiftSubtitle': 'Use TON to buy gifts and suggest posts to channels.'
+  'TonGiftSubtitle': 'Use TON to buy gifts and suggest posts to channels.',
+
+  'ClientSettings.MenuTitle': 'Client Settings',
+  'ClientSettings.GhostMode': 'Ghost Mode',
+  'ClientSettings.GhostMode.Count': '%1$d/%2$d',
+  'ClientSettings.GhostMode.DontReadMessages': 'Don\'t Read Messages',
+  'ClientSettings.GhostMode.DontReadStories': 'Don\'t Read Stories',
+  'ClientSettings.GhostMode.DontSendOnline': 'Don\'t Send Online',
+  'ClientSettings.GhostMode.DontSendTyping': 'Don\'t Send Typing',
+  'ClientSettings.GhostMode.GoOfflineAutomatically': 'Go Offline Automatically',
+
+  'ClientSettings.Chats': 'Chats',
+  'ClientSettings.Chats.ShowSecondsOnMessages': 'Show seconds on messages',
+
+  'ClientSettings.Other': 'Other',
+  'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',
+  'ClientSettings.Other.OpenTgc.Subtitle': 'Open the channel in Telegram',
+  'ClientSettings.Other.OpenTgc.Button': 'Open channel'
 };
 
 export default lang;

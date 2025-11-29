@@ -110,6 +110,18 @@ export type StateSettings = {
     lockShortcutEnabled: boolean,
     lockShortcut: PasscodeLockShortcutKey[],
     canAttemptAgainOn: number | null
+  },
+  client?: {
+    ghostMode: {
+      dontReadMessages: boolean,
+      dontReadStories: boolean,
+      dontSendOnline: boolean,
+      dontSendTyping: boolean,
+      goOfflineAutomatically: boolean
+    },
+    chats: {
+      showSecondsOnMessages: boolean
+    }
   }
 };
 
@@ -380,6 +392,18 @@ export const SETTINGS_INIT: StateSettings = {
     lockShortcutEnabled: false,
     lockShortcut: ['Alt'],
     canAttemptAgainOn: null
+  },
+  client: {
+    ghostMode: {
+      dontReadMessages: false,
+      dontReadStories: false,
+      dontSendOnline: false,
+      dontSendTyping: false,
+      goOfflineAutomatically: false
+    },
+    chats: {
+      showSecondsOnMessages: false
+    }
   }
 };
 
