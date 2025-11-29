@@ -1,7 +1,8 @@
 import {LangPackDifference} from '../layer';
 import {CommonDatabase, getCommonDatabaseState} from '../config/databases/state';
 import {MOUNT_CLASS_TO} from '../config/debug';
-import {StateSettings} from '../config/state';
+import {COMMON_STATE_INIT, StateSettings} from '../config/state';
+import copy from '../helpers/object/copy';
 
 import AppStorage from './storage';
 import {ActiveAccountNumber} from './accounts/types';
@@ -45,5 +46,21 @@ commonStateStorage.get('settings', false).then((settings) => {
   DeferredIsUsingPasscode.resolveDeferred(settings?.passcode?.enabled || false);
 });
 
+export async function resetSettingsToDefault(preservePasscode = true) {
+  try {
+    const current = await commonStateStorage.get('settings', false);
+    const settings: StateSettings = copy(COMMON_STATE_INIT.settings);
+
+    if(preservePasscode && current?.passcode) {
+      settings.passcode = current.passcode;
+    }
+
+    await commonStateStorage.set({settings});
+  } catch(err) {
+    console.error('resetSettingsToDefault error', err);
+  }
+}
+
 MOUNT_CLASS_TO.commonStateStorage = commonStateStorage;
+MOUNT_CLASS_TO && (MOUNT_CLASS_TO.resetSettingsToDefault = resetSettingsToDefault);
 export default commonStateStorage;

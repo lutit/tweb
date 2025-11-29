@@ -1,5 +1,10 @@
-// https://stackoverflow.com/a/61676104
 export default function getTimeFormat(): 'h12' | 'h23' {
+  if(typeof document === 'undefined' || !document.body) {
+    // Worker / service worker / SSR: fall back to 24‑hour format
+    return 'h23';
+  }
+
+  // https://stackoverflow.com/a/61676104
   const t = document.createElement('input');
   t.type = 'time';
   t.value = '15:00';
