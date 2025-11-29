@@ -1,0 +1,8 @@
+{
+  "MyApp.Custom.Welcome": "Welcome to my custom client",
+  "MyApp.Custom.ItemsCount": {
+    "one_value": "%d custom item",
+    "other_value": "%d custom items"
+  }
+}
+

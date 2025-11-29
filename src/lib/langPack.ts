@@ -202,6 +202,41 @@ namespace I18n {
     ]);
   }
 
+  async function loadCustomLangPackOverlay(langCode: string): Promise<LangPackString[] | undefined> {
+    const template = import.meta.env.VITE_CUSTOM_LANG_URL_TEMPLATE as string | undefined;
+    if(!template) {
+      return;
+    }
+
+    if(typeof(fetch) === 'undefined') {
+      console.error('custom lang pack overlay skipped: fetch API is not available');
+      return;
+    }
+
+    const url = template.replace('{lang}', encodeURIComponent(langCode));
+
+    try {
+      const response = await fetch(url, {cache: 'no-cache'});
+      if(!response.ok) {
+        console.error('custom lang pack overlay HTTP error', response.status, response.statusText);
+        return;
+      }
+
+      const data = await response.json();
+      if(!data || typeof(data) !== 'object') {
+        console.error('custom lang pack overlay has invalid JSON structure');
+        return;
+      }
+
+      const strings: LangPackString[] = [];
+      formatLocalStrings(data as any, strings);
+      return strings;
+    } catch(err) {
+      console.error('custom lang pack overlay error', err);
+      return;
+    }
+  }
+
   export function getStrings(langCode: string, strings: string[]) {
     return rootScope.managers.appLangPackManager.getStrings(langCode, strings);
   }
@@ -228,22 +263,40 @@ namespace I18n {
     return pushTo;
   }
 
-  export function getLangPackAndApply(langCode: string, web?: boolean, ignoreCache?: boolean) {
+  export async function getLangPackAndApply(langCode: string, web?: boolean, ignoreCache?: boolean) {
     setLangCode(langCode);
-    return loadLangPack(langCode, web, ignoreCache).then(([langPack1, langPack2, localLangPack1, localLangPack2, countries, _]) => {
-      let strings: LangPackString[] = [];
+    const [langPack1, langPack2, localLangPack1, localLangPack2, countries, _] = await loadLangPack(langCode, web, ignoreCache);
 
-      [localLangPack1, localLangPack2].forEach((l) => {
-        formatLocalStrings(l.default as any, strings);
-      });
+    let strings: LangPackString[] = [];
 
-      strings = strings.concat(...[langPack1.strings, langPack2.strings].filter(Boolean));
-
-      langPack1.strings = strings;
-      langPack1.countries = countries;
-      langPack1.localVersion = App.langPackLocalVersion;
-      return saveLangPack(langPack1, true);
+    [localLangPack1, localLangPack2].forEach((l) => {
+      formatLocalStrings(l.default as any, strings);
     });
+
+    strings = strings.concat(...[langPack1.strings, langPack2.strings].filter(Boolean));
+
+    try {
+      const overlayStrings = await loadCustomLangPackOverlay(langCode);
+      if(overlayStrings?.length) {
+        const merged = new Map<string, LangPackString>();
+        for(const string of strings) {
+          merged.set(string.key, string);
+        }
+
+        for(const string of overlayStrings) {
+          merged.set(string.key, string);
+        }
+
+        strings = Array.from(merged.values());
+      }
+    } catch(err) {
+      console.error('failed to merge custom lang pack overlay', err);
+    }
+
+    langPack1.strings = strings;
+    langPack1.countries = countries;
+    langPack1.localVersion = App.langPackLocalVersion;
+    return saveLangPack(langPack1, true);
   }
 
   export function saveLangPack(langPack: LangPackDifference, apply: boolean) {

@@ -1,0 +1,8 @@
+{
+  "MyApp.Custom.Welcome": "Добро пожаловать в мой клиент",
+  "MyApp.Custom.ItemsCount": {
+    "one_value": "%d элемент",
+    "other_value": "%d элементов"
+  }
+}
+

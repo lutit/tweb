@@ -16,6 +16,7 @@ interface ImportMetaEnv {
   readonly VITE_MTPROTO_HAS_HTTP: string;
   readonly VITE_MTPROTO_HAS_WS: string;
   readonly VITE_SAFARI_PROXY_WEBSOCKET: string;
+  readonly VITE_CUSTOM_LANG_URL_TEMPLATE?: string;
 }
 
 interface ImportMeta {
