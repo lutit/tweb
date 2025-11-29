@@ -107,6 +107,18 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         ghostOptionCheckboxes.push({name, checkbox});
 
         this.listenerSetter.add(checkbox.input)('change', () => {
+          if(name === 'goOfflineAutomatically' && checkbox.checked) {
+            const dontSendOnline = ghostOptionCheckboxes.find((item) => item.name === 'dontSendOnline');
+            if(dontSendOnline && !dontSendOnline.checkbox.checked) {
+              dontSendOnline.checkbox.checked = true;
+            }
+          } else if(name === 'dontSendOnline' && !checkbox.checked) {
+            const goOfflineAutomatically = ghostOptionCheckboxes.find((item) => item.name === 'goOfflineAutomatically');
+            if(goOfflineAutomatically && goOfflineAutomatically.checkbox.checked) {
+              goOfflineAutomatically.checkbox.checked = false;
+            }
+          }
+
           recalcFromCheckboxes();
         });
 

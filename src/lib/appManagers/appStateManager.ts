@@ -79,9 +79,13 @@ export default class AppStateManager {
     });
 
     if(key === 'settings') {
-      this.onSettingsUpdate?.(value as StateSettings);
+      const settingsValue = value as StateSettings;
+      this.onSettingsUpdate?.(settingsValue);
+      // Keep worker rootScope.settings in sync so ghost mode helpers
+      // (and other settings readers) always see up-to-date values.
+      (rootScope as any).settings = settingsValue;
       return commonStateStorage.set({
-        [key]: value
+        [key]: settingsValue
       }, onlyLocal);
     }
 

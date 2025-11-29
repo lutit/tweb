@@ -93,6 +93,7 @@ import createHistoryStorage, {createHistoryStorageSearchSlicedArray} from './uti
 import {isTempId} from './utils/messages/isTempId';
 import fitSymbols from '../../helpers/string/fitSymbols';
 import isObject from '../../helpers/object/isObject';
+import {isGhostDontReadMessagesEnabled, isGhostDontSendTypingEnabled} from '../ghostMode';
 
 // console.trace('include');
 // TODO: если удалить диалог находясь в папке, то он не удалится из папки и будет виден в настройках
@@ -5685,13 +5686,16 @@ export class AppMessagesManager extends AppManager {
     }
 
     let apiPromise: Promise<any>;
+    const shouldSendToServer = !isGhostDontReadMessagesEnabled();
     if(monoforumThreadId) {
       if(!historyStorage.readPromise) {
-        apiPromise = this.apiManager.invokeApi('messages.readSavedHistory', {
-          parent_peer: this.appPeersManager.getInputPeerById(peerId),
-          peer: this.appPeersManager.getInputPeerById(monoforumThreadId),
-          max_id: getServerMessageId(maxId)
-        });
+        apiPromise = shouldSendToServer ?
+          this.apiManager.invokeApi('messages.readSavedHistory', {
+            parent_peer: this.appPeersManager.getInputPeerById(peerId),
+            peer: this.appPeersManager.getInputPeerById(monoforumThreadId),
+            max_id: getServerMessageId(maxId)
+          }) :
+          Promise.resolve();
       }
 
       this.apiUpdatesManager.processLocalUpdate({
@@ -5702,11 +5706,13 @@ export class AppMessagesManager extends AppManager {
       });
     } else if(threadId) {
       if(!historyStorage.readPromise) {
-        apiPromise = this.apiManager.invokeApi('messages.readDiscussion', {
-          peer: this.appPeersManager.getInputPeerById(peerId),
-          msg_id: getServerMessageId(threadId),
-          read_max_id: getServerMessageId(maxId)
-        });
+        apiPromise = shouldSendToServer ?
+          this.apiManager.invokeApi('messages.readDiscussion', {
+            peer: this.appPeersManager.getInputPeerById(peerId),
+            msg_id: getServerMessageId(threadId),
+            read_max_id: getServerMessageId(maxId)
+          }) :
+          Promise.resolve();
         // apiPromise = new Promise<void>((resolve) => resolve());
       }
 
@@ -5730,10 +5736,12 @@ export class AppMessagesManager extends AppManager {
       }
     } else if(this.appPeersManager.isChannel(peerId)) {
       if(!historyStorage.readPromise) {
-        apiPromise = this.apiManager.invokeApi('channels.readHistory', {
-          channel: this.appChatsManager.getChannelInput(peerId.toChatId()),
-          max_id: getServerMessageId(maxId)
-        });
+        apiPromise = shouldSendToServer ?
+          this.apiManager.invokeApi('channels.readHistory', {
+            channel: this.appChatsManager.getChannelInput(peerId.toChatId()),
+            max_id: getServerMessageId(maxId)
+          }) :
+          Promise.resolve();
       }
 
       this.apiUpdatesManager.processLocalUpdate({
@@ -5745,16 +5753,18 @@ export class AppMessagesManager extends AppManager {
       });
     } else {
       if(!historyStorage.readPromise) {
-        apiPromise = this.apiManager.invokeApi('messages.readHistory', {
-          peer: this.appPeersManager.getInputPeerById(peerId),
-          max_id: getServerMessageId(maxId)
-        }).then((affectedMessages) => {
-          this.apiUpdatesManager.processLocalUpdate({
-            _: 'updatePts',
-            pts: affectedMessages.pts,
-            pts_count: affectedMessages.pts_count
-          });
-        });
+        apiPromise = shouldSendToServer ?
+          this.apiManager.invokeApi('messages.readHistory', {
+            peer: this.appPeersManager.getInputPeerById(peerId),
+            max_id: getServerMessageId(maxId)
+          }).then((affectedMessages) => {
+            this.apiUpdatesManager.processLocalUpdate({
+              _: 'updatePts',
+              pts: affectedMessages.pts,
+              pts_count: affectedMessages.pts_count
+            });
+          }) :
+          Promise.resolve();
       }
 
       this.apiUpdatesManager.processLocalUpdate({
@@ -9259,6 +9269,11 @@ export class AppMessagesManager extends AppManager {
     force?: boolean,
     threadId?: number
   ): Promise<boolean> {
+    if(isGhostDontSendTypingEnabled()) {
+      this.log && this.log('ghost mode: skip typing', peerId, action._);
+      return Promise.resolve(false);
+    }
+
     if(threadId && !this.appPeersManager.isForum(peerId)) {
       threadId = undefined;
     }

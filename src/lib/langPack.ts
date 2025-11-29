@@ -668,12 +668,18 @@ namespace I18n {
       safeAssign(this, options);
 
       let text: string;
-      if(this.options.hour && this.options.minute && Object.keys(this.options).length === 2/*  && false */) {
+      const optionKeys = Object.keys(this.options);
+      if(
+        this.options.hour &&
+        this.options.minute &&
+        optionKeys.length > 0 &&
+        optionKeys.every((key) => key === 'hour' || key === 'minute' || key === 'second')
+      ) {
         const hours = this.date.getHours();
         text = ('0' + (timeFormat === 'h12' ? (hours % 12) || 12 : hours)).slice(-2) + ':' + ('0' + this.date.getMinutes()).slice(-2);
-        // if(this.options.second) {
-        //   text += ':' + ('0' + this.date.getSeconds()).slice(-2);
-        // }
+        if(this.options.second) {
+          text += ':' + ('0' + this.date.getSeconds()).slice(-2);
+        }
 
         if(timeFormat === 'h12') {
           text += ' ' + (hours < 12 ? amPmCache.am : amPmCache.pm);

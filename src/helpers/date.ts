@@ -8,6 +8,7 @@ import {MOUNT_CLASS_TO} from '../config/debug';
 import I18n, {i18n} from '../lib/langPack';
 import {days, months} from './date/common';
 import capitalizeFirstLetter from './string/capitalizeFirstLetter';
+import rootScope from '../lib/rootScope';
 
 export const monthsLocalized = months.slice();
 export const daysLocalized = days.slice();
@@ -87,6 +88,9 @@ export function formatDateAccordingToTodayNew(time: Date) {
   const options: Intl.DateTimeFormatOptions = {};
   if((now - timestamp) < ONE_DAY && today.getDate() === time.getDate()) { // if the same day
     options.hour = options.minute = '2-digit';
+    if(rootScope.settings?.client?.chats?.showSecondsOnMessages) {
+      options.second = '2-digit';
+    }
   } else if(today.getFullYear() !== time.getFullYear()) { // different year
     options.year = options.day = 'numeric';
     options.month = '2-digit';
@@ -103,10 +107,18 @@ export function formatDateAccordingToTodayNew(time: Date) {
   }).element;
 }
 
-const formatTimeOptions: Intl.DateTimeFormatOptions = {
+const baseFormatTimeOptions: Intl.DateTimeFormatOptions = {
   hour: '2-digit',
   minute: '2-digit'
 };
+
+function getMessageTimeOptions(): Intl.DateTimeFormatOptions {
+  const options: Intl.DateTimeFormatOptions = {...baseFormatTimeOptions};
+  if(rootScope.settings?.client?.chats?.showSecondsOnMessages) {
+    options.second = '2-digit';
+  }
+  return options;
+}
 
 export function formatFullSentTimeRaw(timestamp: number, options: {
   capitalize?: boolean
@@ -140,7 +152,7 @@ export function formatFullSentTimeRaw(timestamp: number, options: {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
-        ...(options.combined ? formatTimeOptions: {})
+        ...(options.combined ? getMessageTimeOptions() : {})
       }
     }).element;
     // dateStr = months[time.getMonth()].slice(0, 3) + ' ' + time.getDate() + ', ' + time.getFullYear();
@@ -150,7 +162,7 @@ export function formatFullSentTimeRaw(timestamp: number, options: {
       options: {
         month: 'short',
         day: 'numeric',
-        ...(options.combined ? formatTimeOptions: {})
+        ...(options.combined ? getMessageTimeOptions() : {})
       }
     }).element;
     // dateStr = months[time.getMonth()].slice(0, 3) + ' ' + time.getDate();
@@ -173,7 +185,7 @@ export function formatFullSentTime(timestamp: number, capitalize = true, noToday
 export function formatTime(date: Date) {
   return new I18n.IntlDateElement({
     date,
-    options: formatTimeOptions
+    options: getMessageTimeOptions()
   }).element;
 }
 

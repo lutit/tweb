@@ -134,6 +134,7 @@ import IS_WEB_APP_BROWSER_SUPPORTED from '../../environment/webAppBrowserSupport
 import ChatAudio from '../../components/chat/audio';
 import AudioAssetPlayer from '../../helpers/audioAssetPlayer';
 import {getRgbColorFromTelegramColor, rgbIntToHex} from '../../helpers/color';
+import {isGhostGoOfflineAutomaticallyEnabled} from '../ghostMode';
 
 export type ChatSavedPosition = {
   mids: number[],
@@ -219,6 +220,9 @@ export class AppImManager extends EventListenerBase<{
   get chat(): Chat {
     return this.chats[this.chats.length - 1];
   }
+
+  private ghostAutoOfflineIntervalId: number;
+  private ghostAutoOfflineAfterSendTimeoutId: number;
 
   public construct(managers: AppManagers) {
     this.managers = managers;
@@ -621,17 +625,30 @@ export class AppImManager extends EventListenerBase<{
     });
 
     rootScope.addEventListener('message_sent', () => {
-      if(!rootScope.settings.notifications.sentMessageSound) {
-        return;
+      if(rootScope.settings.notifications.sentMessageSound) {
+        const currentTab = apiManagerProxy.getTabState();
+        const accountOtherTabs = apiManagerProxy.getAllTabStates().filter((tab) =>
+          tab.accountNumber === currentTab.accountNumber &&
+          tab.id !== currentTab.id
+        );
+        if(!currentTab.idleStartTime || accountOtherTabs.every((tab) => tab.idleStartTime < currentTab.idleStartTime)) {
+          this.audioAssetPlayer.playWithThrottle({name: 'message_sent', volume: 0.2}, 300);
+        }
       }
 
-      const currentTab = apiManagerProxy.getTabState();
-      const accountOtherTabs = apiManagerProxy.getAllTabStates().filter((tab) =>
-        tab.accountNumber === currentTab.accountNumber &&
-        tab.id !== currentTab.id
-      );
-      if(!currentTab.idleStartTime || accountOtherTabs.every((tab) => tab.idleStartTime < currentTab.idleStartTime)) {
-        this.audioAssetPlayer.playWithThrottle({name: 'message_sent', volume: 0.2}, 300);
+      if(isGhostGoOfflineAutomaticallyEnabled()) {
+        if(this.ghostAutoOfflineAfterSendTimeoutId) {
+          clearTimeout(this.ghostAutoOfflineAfterSendTimeoutId);
+        }
+
+        this.ghostAutoOfflineAfterSendTimeoutId = window.setTimeout(() => {
+          this.ghostAutoOfflineAfterSendTimeoutId = undefined;
+          if(!isGhostGoOfflineAutomaticallyEnabled()) {
+            return;
+          }
+
+          this.goOffline();
+        }, 3000);
       }
     });
 
@@ -1871,6 +1888,21 @@ export class AppImManager extends EventListenerBase<{
     I18n.setTimeFormat(rootScope.settings.timeFormat);
 
     this.toggleChatGradientAnimation(this.chat);
+
+    if(isGhostGoOfflineAutomaticallyEnabled()) {
+      if(!this.ghostAutoOfflineIntervalId) {
+        this.ghostAutoOfflineIntervalId = window.setInterval(() => {
+          if(!isGhostGoOfflineAutomaticallyEnabled()) {
+            return;
+          }
+
+          this.goOffline();
+        }, 4 * 60e3);
+      }
+    } else if(this.ghostAutoOfflineIntervalId) {
+      clearInterval(this.ghostAutoOfflineIntervalId);
+      this.ghostAutoOfflineIntervalId = 0;
+    }
   };
 
   // * не могу использовать тут TransitionSlider, так как мне нужен отрисованный блок рядом

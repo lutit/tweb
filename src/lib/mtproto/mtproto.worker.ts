@@ -29,6 +29,7 @@ import CacheStorageController from '../files/cacheStorage';
 import {ApiManager} from './apiManager';
 import {useAutoLock} from './useAutoLock';
 import pushSingleManager from './pushSingleManager';
+import rootScope from '../rootScope';
 
 
 const log = logger('MTPROTO');
@@ -84,6 +85,10 @@ port.addMultipleEventsListeners({
           for(const key in common) {
             map.set(key, common[key as keyof typeof common]);
             pushedKeysCombined.push(key as any); // ! unoptimized, but it's ok for now since it's only one key
+          }
+
+          if(common.settings) {
+            rootScope.settings = common.settings;
           }
         }
 

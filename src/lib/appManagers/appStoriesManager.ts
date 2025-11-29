@@ -23,6 +23,7 @@ import {ReferenceContext} from '../mtproto/referenceDatabase';
 import {AppManager} from './manager';
 import reactionsEqual from './utils/reactions/reactionsEqual';
 import StoriesCacheType from './utils/stories/cacheType';
+import {isGhostDontReadStoriesEnabled} from '../ghostMode';
 import insertStory from './utils/stories/insertStory';
 
 type MyStoryItem = Exclude<StoryItem, StoryItem.storyItemDeleted>;
@@ -946,6 +947,10 @@ export default class AppStoriesManager extends AppManager {
       return;
     }
 
+    if(isGhostDontReadStoriesEnabled()) {
+      return;
+    }
+
     return this.apiManager.invokeApiSingleProcess({
       method: 'stories.readStories',
       params: {
@@ -956,6 +961,10 @@ export default class AppStoriesManager extends AppManager {
   }
 
   public incrementStoryViews(peerId: PeerId, ids: StoryItem['id'][]) {
+    if(isGhostDontReadStoriesEnabled()) {
+      return;
+    }
+
     return this.apiManager.invokeApiSingleProcess({
       method: 'stories.incrementStoryViews',
       params: {

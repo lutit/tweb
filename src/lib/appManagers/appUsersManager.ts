@@ -31,6 +31,7 @@ import callbackify from '../../helpers/callbackify';
 import {NULL_PEER_ID, TEST_NO_STORIES} from '../mtproto/mtproto_config';
 import MTProtoMessagePort from '../mtproto/mtprotoMessagePort';
 import pause from '../../helpers/schedulers/pause';
+import {isGhostDontSendOnlineEnabled} from '../ghostMode';
 
 export type User = MTUser.user;
 export type TopPeerType = 'correspondents' | 'bots_inline' | 'bots_app';
@@ -1122,6 +1123,10 @@ export class AppUsersManager extends AppManager {
   }
 
   public updateMyOnlineStatus(offline: boolean) {
+    if(!offline && isGhostDontSendOnlineEnabled()) {
+      return Promise.resolve(false as any);
+    }
+
     this.setUserStatus(this.getSelf().id, offline);
     return this.apiManager.invokeApiSingle('account.updateStatus', {offline});
   }
