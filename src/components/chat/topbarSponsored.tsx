@@ -29,6 +29,7 @@ import createContextMenu from '../../helpers/dom/createContextMenu';
 import {copyTextToClipboard} from '../../helpers/clipboard';
 import {getSponsoredMessageButtons} from './contextMenu';
 import PopupReportAd from '../popups/reportAd';
+import {useAppSettings} from '../../stores/appSettings';
 
 export default class ChatTopbarSponsored extends PinnedContainer {
   private dispose: () => void;
@@ -51,26 +52,33 @@ export default class ChatTopbarSponsored extends PinnedContainer {
 
   private init() {
     const {peerId} = this;
+    const [appSettings] = useAppSettings();
 
     const [message, setMessage] = createSignal<SponsoredMessage>();
 
     const middleware = getMiddleware()
 
-    createEffect(on(peerId, (peerId$) => {
+    createEffect(() => {
+      const peerId$ = peerId();
+      const adsDisabled = !!appSettings.client?.premium?.disableAds;
+
       setMessage(undefined);
       this.toggle(true);
+
+      if(adsDisabled) return;
       if(peerId$ === NULL_PEER_ID || !peerId$.isUser()) return;
       if(!this.chat.isBot) return;
 
       this.managers.appMessagesManager.getSponsoredMessage(peerId$).then((message) => {
         if(peerId() !== peerId$) return;
+        if(adsDisabled) return;
 
         if(message._ === 'messages.sponsoredMessages' && message.messages.length) {
           setMessage(message.messages[0]);
           this.toggle(false);
         }
       });
-    }))
+    });
 
     const photo = () => {
       const message$ = message();

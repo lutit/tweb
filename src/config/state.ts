@@ -121,6 +121,10 @@ export type StateSettings = {
     },
     chats: {
       showSecondsOnMessages: boolean
+    },
+    premium?: {
+      localPremium: boolean,
+      disableAds: boolean
     }
   }
 };
@@ -403,6 +407,10 @@ export const SETTINGS_INIT: StateSettings = {
     },
     chats: {
       showSecondsOnMessages: false
+    },
+    premium: {
+      localPremium: false,
+      disableAds: true
     }
   }
 };

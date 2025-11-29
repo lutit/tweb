@@ -188,6 +188,7 @@ import {wrapRoundVideoBubble} from './bubbleParts/roundVideoBubble';
 import {createMessageSpoilerOverlay} from '../messageSpoilerOverlay';
 import SolidJSHotReloadGuardProvider from '../../lib/solidjs/hotReloadGuardProvider';
 import formatStarsAmount from '../../lib/appManagers/utils/payments/formatStarsAmount';
+import {appSettings} from '../../stores/appSettings';
 import {Sparkles} from '../sparkles';
 import PopupStars from '../popups/stars';
 import addPaidServiceMessage from './bubbleParts/paidServiceMessage';
@@ -1812,10 +1813,14 @@ export default class ChatBubbles {
         if(this.sponsoredMessagesMids.includes(fullMid)) {
           const {mid} = splitFullMid(fullMid);
           const msg = this.sponsoredMessages.find((msg) => msg.mid === mid);
-          const sponsoredMessage = (msg as Message.message)?.sponsoredMessage
+          const sponsoredMessage = (msg as Message.message)?.sponsoredMessage;
 
-          if(sponsoredMessage && !sponsoredMessage.viewed) {
-            this.managers.appMessagesManager.viewSponsoredMessage(sponsoredMessage.random_id)
+          if(
+            sponsoredMessage &&
+            !sponsoredMessage.viewed &&
+            !appSettings.client?.premium?.disableAds
+          ) {
+            this.managers.appMessagesManager.viewSponsoredMessage(sponsoredMessage.random_id);
           }
           return
         }
@@ -6666,7 +6671,9 @@ export default class ChatBubbles {
             }
           }
 
-          if(webPage.site_name || sponsoredMessage) {
+          const adsDisabled = !!appSettings.client?.premium?.disableAds;
+
+          if(webPage.site_name || (sponsoredMessage && !adsDisabled)) {
             let smth: HTMLElement | DocumentFragment;
             if(sponsoredMessage) {
               smth = i18n(sponsoredMessage.pFlags.recommended ? 'SponsoredMessageRecommended' : 'SponsoredMessage');
@@ -6686,7 +6693,7 @@ export default class ChatBubbles {
 
             props.name = {
               content: smth,
-              tip: sponsoredMessage && sponsoredMessage.pFlags.can_report && {
+              tip: !adsDisabled && sponsoredMessage && sponsoredMessage.pFlags.can_report && {
                 content: i18n('SponsoredMessageAdWhatIsThis'),
                 onClick: (e) => {
                   cancelEvent(e);
@@ -6697,8 +6704,8 @@ export default class ChatBubbles {
           }
 
           const title = wrapWebPageTitle(webPage);
-          if(title.textContent || sponsoredMessage) {
-            props.title = sponsoredMessage ? wrapEmojiText(sponsoredMessage.title) : title;
+          if(title.textContent || (sponsoredMessage && !adsDisabled)) {
+            props.title = sponsoredMessage && !adsDisabled ? wrapEmojiText(sponsoredMessage.title) : title;
           }
 
           const description = wrapWebPageDescription(webPage, getRichTextOptions(webPage.entities), isSponsored);
@@ -9301,6 +9308,15 @@ export default class ChatBubbles {
     if(this.sponsoredMessagesLoaded) return;
 
     const log = this.log.bindPrefix('sponsored-' + (Math.random() * 1000 | 0));
+
+    if(appSettings.client?.premium?.disableAds) {
+      this.sponsoredMessagesLoaded = true;
+      this.sponsoredMessages = [];
+      this.sponsoredMessagesAvailable = [];
+      this.sponsoredMessageEvery = 0;
+      this.messagesSinceLastSponsored = 0;
+      return;
+    }
 
     const middleware = this.getMiddleware(() => this.getSponsoredMessagePromise === promise);
 

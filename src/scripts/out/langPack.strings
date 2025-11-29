@@ -3341,6 +3341,9 @@
 "ClientSettings.GhostMode.GoOfflineAutomatically" = "Go Offline Automatically";
 "ClientSettings.Chats" = "Chats";
 "ClientSettings.Chats.ShowSecondsOnMessages" = "Show seconds on messages";
+"ClientSettings.Premium" = "Premium";
+"ClientSettings.Premium.LocalPremium" = "Local Telegram Premium";
+"ClientSettings.Premium.DisableAds" = "Disable Ads";
 "ClientSettings.Other" = "Other";
 "ClientSettings.Other.OpenTgc.Title" = "Telegram client channel";
 "ClientSettings.Other.OpenTgc.Subtitle" = "Open the channel in Telegram";

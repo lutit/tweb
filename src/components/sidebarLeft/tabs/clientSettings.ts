@@ -177,6 +177,35 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
     }
 
     {
+      const container = section('ClientSettings.Premium');
+
+      const localPremiumRow = new Row({
+        titleLangKey: 'ClientSettings.Premium.LocalPremium',
+        checkboxField: new CheckboxField({
+          name: 'client-premium-local',
+          stateKey: joinDeepPath('settings', 'client', 'premium', 'localPremium'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      const disableAdsRow = new Row({
+        titleLangKey: 'ClientSettings.Premium.DisableAds',
+        checkboxField: new CheckboxField({
+          name: 'client-premium-disable-ads',
+          stateKey: joinDeepPath('settings', 'client', 'premium', 'disableAds'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(localPremiumRow.container, disableAdsRow.container);
+    }
+
+    // Important: do NOT add anything below the "ClientSettings.Other" section it must always be the last one.
+    {
       const container = section('ClientSettings.Other');
 
       const row = new Row({

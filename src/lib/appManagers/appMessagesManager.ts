@@ -9716,6 +9716,11 @@ export class AppMessagesManager extends AppManager {
   }
 
   public async getSponsoredMessage(peerId: PeerId): Promise<MessagesSponsoredMessages> {
+    if(this.rootScope.settings?.client?.premium?.disableAds) {
+      return Promise.resolve({
+        _: 'messages.sponsoredMessagesEmpty'
+      } as MessagesSponsoredMessages);
+    }
     // return Promise.resolve({
     //   '_': 'messages.sponsoredMessages',
     //   'posts_between': 5,

@@ -17,6 +17,10 @@
   "ClientSettings.Chats": "Чаты",
   "ClientSettings.Chats.ShowSecondsOnMessages": "Показывать секунды у сообщений",
 
+  "ClientSettings.Premium": "Премиум",
+  "ClientSettings.Premium.LocalPremium": "Локальный Telegram Premium",
+  "ClientSettings.Premium.DisableAds": "Отключить рекламу",
+
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",

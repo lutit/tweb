@@ -3,11 +3,33 @@ import rootScope from '../lib/rootScope';
 
 const [premium, setPremium] = createRoot(() => createSignal(rootScope.premium));
 
-const onAuth = () => {
-  rootScope.managers.rootScope.getPremium().then(setPremium);
+let serverPremium = rootScope.premium;
+let localPremium = !!rootScope.settings?.client?.premium?.localPremium;
+
+const recompute = () => {
+  setPremium(serverPremium || localPremium);
 };
 
-rootScope.addEventListener('premium_toggle', setPremium);
+const onAuth = () => {
+  localPremium = !!rootScope.settings?.client?.premium?.localPremium;
+  recompute();
+
+  rootScope.managers.rootScope.getPremium().then((value) => {
+    serverPremium = value;
+    recompute();
+  });
+};
+
+rootScope.addEventListener('premium_toggle', (value) => {
+  serverPremium = value;
+  recompute();
+});
+
+rootScope.addEventListener('settings_updated', ({settings}) => {
+  localPremium = !!settings.client?.premium?.localPremium;
+  recompute();
+});
+
 if(rootScope.myId) {
   onAuth();
 } else {
