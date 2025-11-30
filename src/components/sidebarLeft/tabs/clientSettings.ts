@@ -243,6 +243,12 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter
       });
 
+      container.append(localPremiumRow.container, disableAdsRow.container);
+    }
+
+    {
+      const container = section('ClientSettings.AyuMoments');
+
       const forceCopyRow = new Row({
         titleLangKey: 'ClientSettings.Premium.ForceCopy',
         checkboxField: new CheckboxField({
@@ -254,7 +260,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter
       });
 
-      container.append(localPremiumRow.container, disableAdsRow.container, forceCopyRow.container);
+      container.append(forceCopyRow.container);
     }
 
     // Important: do NOT add anything below the "ClientSettings.Other" section it must always be the last one.

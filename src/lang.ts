@@ -3873,6 +3873,8 @@ const lang = {
   'ClientSettings.Id.Format.BotApi': 'Bot API',
   'ClientSettings.Id.Format.TelegramApi': 'Telegram API',
 
+  'ClientSettings.AyuMoments': 'Ayu moments',
+
   'ClientSettings.Other': 'Other',
   'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',
   'ClientSettings.Other.OpenTgc.Subtitle': 'Open the channel in Telegram',

@@ -34,6 +34,8 @@
    "ClientSettings.Id.Format.BotApi": "Bot API",
    "ClientSettings.Id.Format.TelegramApi": "Telegram API",
 
+  "ClientSettings.AyuMoments": "Ayu моменты",
+
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",
