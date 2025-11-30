@@ -53,6 +53,7 @@ $time-margin-left: math.div($message-padding-horizontal, -2) + 1px;
 		display: flex;
 		align-items: flex-end;
 		justify-content: center;
+		gap: var(--padding-horizontal);
     // justify-content: space-between;
 		max-width: var(--chat-input-max-width);
 		margin: 0 auto;
@@ -890,11 +891,16 @@ $time-margin-left: math.div($message-padding-horizontal, -2) + 1px;
 }
 
 .chat-input-wrapper {
-	--padding-vertical: .3125rem;
-	--padding-horizontal: var(--chat-input-inner-padding);
+	--padding-vertical: .5rem;
+	--padding-horizontal: calc(var(--chat-input-inner-padding) + .125rem);
 	--padding: var(--padding-vertical) var(--padding-horizontal);
   --button-size: 2.125rem;
   --button-horizontal-margin: .125rem;
+  --composer-background-start: rgba(var(--primary-text-color-rgb, 16, 23, 34), .04);
+  --composer-background-end: rgba(var(--primary-text-color-rgb, 16, 23, 34), .09);
+  --composer-border-color: rgba(var(--secondary-text-color-rgb, 105, 115, 125), .18);
+  --composer-shadow: 0 24px 65px rgba(13, 25, 44, .18);
+  --composer-blur: 18px;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
@@ -910,21 +916,6 @@ $time-margin-left: math.div($message-padding-horizontal, -2) + 1px;
 	flex: 0 0 auto;
 	position: relative;
 	z-index: 3;
-
-  // .chat-input-wrapper-background,
-  &:before {
-    content: " ";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    border-radius: inherit;
-    box-shadow: $chat-input-box-shadow;
-    background-color: #fff;
-    background-color: var(--surface-color);
-    opacity: 1;
-  }
 }
 
 .chat-input-control {
@@ -1141,29 +1132,12 @@ $time-margin-left: math.div($message-padding-horizontal, -2) + 1px;
 .rows-wrapper {
   transform: translateX(0) scaleX(1);
   border-end-end-radius: 0;
-	// transform: translateX(calc((var(--chat-input-size) + 0.5rem) / -2)) scaleX(1);
-	// transition: transform $input-transition-time, width $input-transition-time, max-height $input-transition-time, border-radius $input-half-transition-time/* , opacity 0s 0s */;
-  // background-color: transparent;
-  // opacity: 1;
-  // box-shadow: none;
+  background-color: transparent;
+  position: relative;
+  z-index: 1;
 
 	.bubble-tail {
-    opacity: 1;
-	}
-
-	.bubble-tail {
-		//content: '';
-		position: absolute;
-		//bottom: -.1875rem;
-		bottom: -1px;
-		inset-inline-end: -8.4px;
-		width: 11px;
-		height: 20px;
-		//background-repeat: no-repeat no-repeat;
-		//background-position: 0 100%;
-		//background-image: url('assets/img/msg-tail-left-blur.svg');
-		fill: var(--surface-color);
-		transform: scaleX(calc(var(--reflect) * -1));
+    display: none;
 	}
 
 	.attach-file {
