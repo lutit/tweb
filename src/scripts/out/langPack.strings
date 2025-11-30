@@ -2185,6 +2185,16 @@
 "UserRestrictionsCanDoUsers_other" = "What can %1$s selected users do?";
 "ClientSettings.Other.SourceCode.Title" = "Source code";
 "ClientSettings.Other.SourceCode.Subtitle" = "Open the project on GitHub";
+"ClientSettings.Profile" = "Profile";
+"ClientSettings.Profile.ShowId" = "Show ID in profile";
+"ClientSettings.Profile.IdFormat" = "ID format";
+"ClientSettings.Profile.IdFormat.BotApi" = "Bot API";
+"ClientSettings.Profile.IdFormat.TelegramApi" = "Telegram API";
+
+"ClientSettings.Id" = "ID";
+"ClientSettings.Id.Format.Hide" = "Hide";
+"ClientSettings.Id.Format.BotApi" = "Bot API";
+"ClientSettings.Id.Format.TelegramApi" = "Telegram API";
 "TelegramStars" = "Telegram Stars";
 "TelegramStarsInfo" = "Buy Stars to unlock content and services\nin mini apps on Telegram.";
 "StarsBalance" = "Balance";

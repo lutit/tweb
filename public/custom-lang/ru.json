@@ -22,6 +22,17 @@
   "ClientSettings.Premium.DisableAds": "Отключить рекламу",
   "ClientSettings.Premium.ForceCopy": "Форсить копирование",
 
+  "ClientSettings.Profile": "Профиль",
+  "ClientSettings.Profile.ShowId": "Показывать ID в профиле",
+  "ClientSettings.Profile.IdFormat": "Формат ID",
+  "ClientSettings.Profile.IdFormat.BotApi": "Bot API",
+  "ClientSettings.Profile.IdFormat.TelegramApi": "Telegram API",
+
+   "ClientSettings.Id": "ID",
+   "ClientSettings.Id.Format.Hide": "Скрыть",
+   "ClientSettings.Id.Format.BotApi": "Bot API",
+   "ClientSettings.Id.Format.TelegramApi": "Telegram API",
+
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",

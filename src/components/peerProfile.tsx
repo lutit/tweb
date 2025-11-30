@@ -18,7 +18,7 @@ import safeWindowOpen from '../helpers/dom/safeWindowOpen';
 import anchorCopy from '../helpers/dom/anchorCopy';
 import getServerMessageId from '../lib/appManagers/utils/messageId/getServerMessageId';
 import getPeerActiveUsernames from '../lib/appManagers/utils/peers/getPeerActiveUsernames';
-import {useAppConfig} from '../stores/appState';
+import {useAppConfig, useAppState} from '../stores/appState';
 import detectLanguageForTranslation from '../helpers/detectLanguageForTranslation';
 import usePeerTranslation from '../hooks/usePeerTranslation';
 import makeGoogleMapsUrl from '../helpers/makeGoogleMapsUrl';
@@ -595,6 +595,7 @@ PeerProfile.Phone = () => {
   const context = useContext(PeerProfileContext);
   const {I18n, i18n, toast} = useHotReloadGuard();
   const appConfig = useAppConfig();
+  const [appState] = useAppState();
 
   const phoneDetails = createMemo(() => {
     if(!context.peerId.isUser() || !context.canBeDetailed()) {
@@ -646,6 +647,74 @@ PeerProfile.Phone = () => {
         <Row.Icon icon="phone" />
         <Row.Title>{phoneDetails().formatted}</Row.Title>
         <Row.Subtitle>{i18n(phoneDetails().isAnonymous ? 'AnonymousNumber' : 'Phone')}</Row.Subtitle>
+      </Row>
+    </Show>
+  );
+};
+
+PeerProfile.Id = () => {
+  const context = useContext(PeerProfileContext);
+  const {I18n, i18n, toast} = useHotReloadGuard();
+  const [appState] = useAppState();
+
+  const settings = () => appState.settings;
+  const profileSettings = () => settings().client?.profile;
+
+  const canShow = createMemo(() => {
+    const format = profileSettings()?.idFormat || 'hide';
+    return format !== 'hide' && context.canBeDetailed();
+  });
+
+  const formattedId = createMemo(() => {
+    if(!canShow()) return;
+
+    const id = context.peerId;
+    const isChannel = id.isAnyChat();
+
+    const format = profileSettings()?.idFormat || 'hide';
+
+    // peerId has sign embedded; we use its numeric form.
+    const raw = id as any as number;
+
+    if(!isChannel) {
+      // users: same for both formats
+      return '' + raw;
+    }
+
+    if(format === 'botApi') {
+      // ensure -100 prefix for channels / groups
+      const abs = Math.abs(raw);
+      return '-100' + abs;
+    }
+
+    // telegramApi: strip -100 / sign for channels
+    const abs = Math.abs(raw);
+    const suffix = String(abs).replace(/^100/, '');
+    return suffix;
+  });
+
+  const copyId = () => {
+    const value = formattedId();
+    if(!value) return;
+    copyTextToClipboard(value);
+    toast(I18n.format('StarsTransactionIDCopied', true));
+  };
+
+  return (
+    <Show when={canShow()}>
+      <Row
+        clickable={copyId}
+        contextMenu={{
+          buttons: [{
+            icon: 'copy',
+            text: 'Message.Context.Selection.Copy',
+            onClick: copyId
+          }]
+        }}
+      >
+        <Row.Icon icon="key" />
+        <Row.Title>{formattedId()}</Row.Title>
+        <Row.Subtitle>ID</Row.Subtitle>
       </Row>
     </Show>
   );
@@ -1240,6 +1309,7 @@ PeerProfile.MainSection = () => {
         <PeerProfile.AutoAvatar />
       </Show>
       <Show when={!(context.isBotforum && context.threadId)}>
+        <PeerProfile.Id />
         <PeerProfile.Phone />
         <PeerProfile.Username />
         <PeerProfile.Location />

@@ -126,7 +126,10 @@ export type StateSettings = {
       localPremium: boolean,
       disableAds: boolean
     },
-    forceCopy?: boolean
+    forceCopy?: boolean,
+    profile?: {
+      idFormat: 'hide' | 'botApi' | 'telegramApi'
+    }
   }
 };
 
@@ -413,7 +416,10 @@ export const SETTINGS_INIT: StateSettings = {
       localPremium: false,
       disableAds: true
     },
-    forceCopy: true
+    forceCopy: true,
+    profile: {
+      idFormat: 'botApi'
+    }
   }
 };
 

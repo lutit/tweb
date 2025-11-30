@@ -3,6 +3,7 @@ import rootScope from '../../../lib/rootScope';
 import {generateSection} from '../../settingSection';
 import CheckboxField from '../../checkboxField';
 import Row, {CreateRowFromCheckboxField} from '../../row';
+import RadioField from '../../radioField';
 import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
 import I18n from '../../../lib/langPack';
 import appImManager from '../../../lib/appManagers/appImManager';
@@ -175,6 +176,35 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       });
 
       container.append(row.container);
+    }
+
+    {
+      const container = section('ClientSettings.Id');
+
+      const form = document.createElement('form');
+      const name = 'client-profile-id-format';
+      const stateKey = joinDeepPath('settings', 'client', 'profile', 'idFormat');
+
+      const formats: Array<['hide' | 'botApi' | 'telegramApi', string]> = [
+        ['hide', 'ClientSettings.Id.Format.Hide'],
+        ['botApi', 'ClientSettings.Id.Format.BotApi'],
+        ['telegramApi', 'ClientSettings.Id.Format.TelegramApi']
+      ];
+
+      const rows = formats.map(([value, langKey]) => {
+        return new Row({
+          radioField: new RadioField({
+            langKey: langKey as any,
+            name,
+            value,
+            stateKey
+          }),
+          listenerSetter: this.listenerSetter
+        });
+      });
+
+      form.append(...rows.map((row) => row.container));
+      container.append(form);
     }
 
     {
