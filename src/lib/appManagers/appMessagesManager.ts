@@ -38,6 +38,7 @@ import deepEqual from '../../helpers/object/deepEqual';
 import splitStringByLength from '../../helpers/string/splitStringByLength';
 import debounce from '../../helpers/schedulers/debounce';
 import {AppManager} from './manager';
+import {isForceCopyEnabled} from '../forceCopy';
 import getPhotoMediaInput from './utils/photos/getPhotoMediaInput';
 import parseMarkdown from '../richTextProcessor/parseMarkdown';
 import getServerMessageId from './utils/messageId/getServerMessageId';
@@ -9501,8 +9502,15 @@ export class AppMessagesManager extends AppManager {
   }
 
   public canForward(message: Message.message | Message.messageService) {
-    return message?._ === 'message' &&
-      !(message as Message.message).pFlags.noforwards &&
+    if(message?._ !== 'message') {
+      return false;
+    }
+
+    if(isForceCopyEnabled()) {
+      return true;
+    }
+
+    return !(message as Message.message).pFlags.noforwards &&
       !this.appPeersManager.noForwards(message.peerId);
   }
 

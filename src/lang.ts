@@ -3859,6 +3859,7 @@ const lang = {
   'ClientSettings.Premium': 'Premium',
   'ClientSettings.Premium.LocalPremium': 'Local Telegram Premium',
   'ClientSettings.Premium.DisableAds': 'Disable Ads',
+  'ClientSettings.Premium.ForceCopy': 'Force copy (ignore channel restrictions)',
 
   'ClientSettings.Other': 'Other',
   'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',

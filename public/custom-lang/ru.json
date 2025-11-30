@@ -20,6 +20,7 @@
   "ClientSettings.Premium": "Премиум",
   "ClientSettings.Premium.LocalPremium": "Локальный Telegram Premium",
   "ClientSettings.Premium.DisableAds": "Отключить рекламу",
+  "ClientSettings.Premium.ForceCopy": "Форсить копирование",
 
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",

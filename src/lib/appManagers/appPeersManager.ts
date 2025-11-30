@@ -23,6 +23,7 @@ import getPeerPhoto from './utils/peers/getPeerPhoto';
 import getServerMessageId from './utils/messageId/getServerMessageId';
 import MTProtoMessagePort from '../mtproto/mtprotoMessagePort';
 import callbackify from '../../helpers/callbackify';
+import {isForceCopyEnabled} from '../forceCopy';
 
 export type PeerType = 'channel' | 'chat' | 'megagroup' | 'group' | 'saved' | 'savedDialog' | 'monoforum' | 'monoforum_thread' | 'botforum_thread';
 export class AppPeersManager extends AppManager {
@@ -342,11 +343,11 @@ export class AppPeersManager extends AppManager {
   }
 
   public noForwards(peerId: PeerId) {
+    if(isForceCopyEnabled()) return false;
+
     if(peerId.isUser()) return false;
-    else {
-      const chat = this.appChatsManager.getChat(peerId.toChatId());
-      return !!(chat as Chat.chat).pFlags?.noforwards;
-    }
+    const chat = this.appChatsManager.getChat(peerId.toChatId());
+    return !!(chat as Chat.chat).pFlags?.noforwards;
   }
 
   public mirrorAllPeers(port?: MessageEventSource) {

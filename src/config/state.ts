@@ -125,7 +125,8 @@ export type StateSettings = {
     premium?: {
       localPremium: boolean,
       disableAds: boolean
-    }
+    },
+    forceCopy?: boolean
   }
 };
 
@@ -411,7 +412,8 @@ export const SETTINGS_INIT: StateSettings = {
     premium: {
       localPremium: false,
       disableAds: true
-    }
+    },
+    forceCopy: true
   }
 };
 

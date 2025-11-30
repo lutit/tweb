@@ -201,7 +201,18 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter
       });
 
-      container.append(localPremiumRow.container, disableAdsRow.container);
+      const forceCopyRow = new Row({
+        titleLangKey: 'ClientSettings.Premium.ForceCopy',
+        checkboxField: new CheckboxField({
+          name: 'client-premium-force-copy',
+          stateKey: joinDeepPath('settings', 'client', 'forceCopy'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(localPremiumRow.container, disableAdsRow.container, forceCopyRow.container);
     }
 
     // Important: do NOT add anything below the "ClientSettings.Other" section it must always be the last one.

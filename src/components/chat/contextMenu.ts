@@ -79,6 +79,7 @@ import getPeerTitle from '../wrappers/getPeerTitle';
 import {getFullDate} from '../../helpers/date/getFullDate';
 import PaidMessagesInterceptor, {PAYMENT_REJECTED} from './paidMessagesInterceptor';
 import {MySponsoredPeer} from '../../lib/appManagers/appChatsManager';
+import {isForceCopyEnabled} from '../../lib/forceCopy';
 import {PopupChecklist} from '../popups/checklist';
 import createSubmenuTrigger, {CreateSubmenuArgs} from '../createSubmenuTrigger';
 import noop from '../../helpers/noop';
@@ -1078,7 +1079,7 @@ export default class ChatContextMenu {
       return message.some((message) => ChatContextMenu.canDownload(message, withTarget, noForwards, container));
     }
 
-    if(!canSaveMessageMedia(message) || noForwards) {
+    if(!canSaveMessageMedia(message) || (noForwards && !isForceCopyEnabled())) {
       return false;
     }
 
