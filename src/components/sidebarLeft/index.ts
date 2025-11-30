@@ -16,6 +16,7 @@ import AppSearchSuper from '../appSearchSuper';
 import {DateData, fillTipDates} from '../../helpers/date';
 import {MOUNT_CLASS_TO} from '../../config/debug';
 import AppSettingsTab from './tabs/settings';
+import AppClientSettingsTab from './tabs/clientSettings';
 import AppNewChannelTab from './tabs/newChannel';
 import AppContactsTab from './tabs/contacts';
 import AppArchivedTab from './tabs/archivedTab';
@@ -640,11 +641,6 @@ export class AppSidebarLeft extends SidebarSlider {
       });
     };
 
-    const moreSubmenu = createSubmenuTrigger({
-      text: 'MultiAccount.More',
-      icon: 'more'
-    }, (args) => this.createMoreSubmenu(args, closeTabsBefore));
-
     const newSubmenu = createSubmenuTrigger({
       text: 'CreateANew',
       icon: 'edit',
@@ -723,7 +719,15 @@ export class AppSidebarLeft extends SidebarSlider {
           this.createTab(AppSettingsTab).open();
         });
       }
-    }, moreSubmenu];
+    }, {
+      icon: 'paper_plane_n',
+      text: 'ClientSettings.MenuTitle',
+      onClick: () => {
+        closeTabsBefore(() => {
+          this.createTab(AppClientSettingsTab).open();
+        });
+      }
+    }];
 
     const filteredButtons = menuButtons.filter(Boolean);
     const filteredButtonsSliced = filteredButtons.slice();
@@ -845,12 +849,10 @@ export class AppSidebarLeft extends SidebarSlider {
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
       onOpen: () => {
-        moreSubmenu.onOpen();
         newSubmenu.onOpen();
         btnArchive.element?.append(this.archivedCount);
       },
       onClose: () => {
-        moreSubmenu.onClose();
         newSubmenu.onClose();
       },
       noIcon: true
