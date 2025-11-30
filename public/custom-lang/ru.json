@@ -25,5 +25,7 @@
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",
-  "ClientSettings.Other.OpenTgc.Button": "Открыть канал"
+  "ClientSettings.Other.OpenTgc.Button": "Открыть канал",
+  "ClientSettings.Other.SourceCode.Title": "Исходный код",
+  "ClientSettings.Other.SourceCode.Subtitle": "Открыть проект на GitHub"
 }

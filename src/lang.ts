@@ -3864,7 +3864,9 @@ const lang = {
   'ClientSettings.Other': 'Other',
   'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',
   'ClientSettings.Other.OpenTgc.Subtitle': 'Open the channel in Telegram',
-  'ClientSettings.Other.OpenTgc.Button': 'Open channel'
+  'ClientSettings.Other.OpenTgc.Button': 'Open channel',
+  'ClientSettings.Other.SourceCode.Title': 'Source code',
+  'ClientSettings.Other.SourceCode.Subtitle': 'Open the project on GitHub'
 };
 
 export default lang;

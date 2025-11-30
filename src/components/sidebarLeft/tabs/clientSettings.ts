@@ -8,6 +8,7 @@ import I18n from '../../../lib/langPack';
 import appImManager from '../../../lib/appManagers/appImManager';
 import Button from '../../button';
 import Icon from '../../icon';
+import safeWindowOpen from '../../../helpers/dom/safeWindowOpen';
 
 export default class AppClientSettingsTab extends SliderSuperTabEventable {
   public init() {
@@ -219,7 +220,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
     {
       const container = section('ClientSettings.Other');
 
-      const row = new Row({
+      const tgChannelRow = new Row({
         icon: 'channel',
         titleLangKey: 'ClientSettings.Other.OpenTgc.Title',
         subtitleLangKey: 'ClientSettings.Other.OpenTgc.Subtitle',
@@ -229,7 +230,17 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter
       });
 
-      container.append(row.container);
+      const sourceCodeRow = new Row({
+        icon: 'github',
+        titleLangKey: 'ClientSettings.Other.SourceCode.Title',
+        subtitleLangKey: 'ClientSettings.Other.SourceCode.Subtitle',
+        clickable: () => {
+          safeWindowOpen('https://github.com/lutit/tweb');
+        },
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(tgChannelRow.container, sourceCodeRow.container);
     }
   }
 }

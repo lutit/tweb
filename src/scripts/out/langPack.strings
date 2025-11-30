@@ -2183,6 +2183,8 @@
 "DeleteRestrictUsers" = "Restrict users";
 "UserRestrictionsCanDoUsers_one" = "What can %1$s selected user do?";
 "UserRestrictionsCanDoUsers_other" = "What can %1$s selected users do?";
+"ClientSettings.Other.SourceCode.Title" = "Source code";
+"ClientSettings.Other.SourceCode.Subtitle" = "Open the project on GitHub";
 "TelegramStars" = "Telegram Stars";
 "TelegramStarsInfo" = "Buy Stars to unlock content and services\nin mini apps on Telegram.";
 "StarsBalance" = "Balance";
