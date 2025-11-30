@@ -720,6 +720,12 @@ export class AppSidebarLeft extends SidebarSlider {
         });
       }
     }, {
+      icon: 'darkmode',
+      text: themeController.isNight() ? 'DisableDarkMode' : 'EnableDarkMode',
+      onClick: () => {
+        themeController.switchTheme();
+      }
+    }, {
       icon: 'paper_plane_n',
       text: 'ClientSettings.MenuTitle',
       onClick: () => {
