@@ -190,6 +190,30 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
     }
 
     {
+      const container = section('ClientSettings.Confirmations');
+      const confirmations = [
+        ['stickers', 'ClientSettings.Confirmations.Stickers'],
+        ['gifs', 'ClientSettings.Confirmations.Gifs'],
+        ['voiceMessages', 'ClientSettings.Confirmations.VoiceMessages']
+      ] as const;
+
+      confirmations.forEach(([key, langKey]) => {
+        const row = new Row({
+          titleLangKey: langKey,
+          checkboxField: new CheckboxField({
+            name: `client-confirmations-${key}`,
+            stateKey: joinDeepPath('settings', 'client', 'confirmations', key),
+            listenerSetter: this.listenerSetter,
+            toggle: true
+          }),
+          listenerSetter: this.listenerSetter
+        });
+
+        container.append(row.container);
+      });
+    }
+
+    {
       const container = section('ClientSettings.Id');
 
       const form = document.createElement('form');

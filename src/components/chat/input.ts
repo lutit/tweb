@@ -9,13 +9,13 @@ import type {MyDraftMessage} from '../../lib/appManagers/appDraftsManager';
 import type {AppMessagesManager, MessageSendingParams, MyMessage, SuggestedPostPayload} from '../../lib/appManagers/appMessagesManager';
 import type Chat from './chat';
 import {AppImManager, APP_TABS} from '../../lib/appManagers/appImManager';
-import '../../../public/recorder.min';
 import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import opusDecodeController from '../../lib/opusDecodeController';
 import {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '../buttonMenu';
 import emoticonsDropdown, {EmoticonsDropdown} from '../emoticonsDropdown';
 import PopupCreatePoll from '../popups/createPoll';
 import PopupForward from '../popups/forward';
+import confirmationPopup from '../confirmationPopup';
 import PopupNewMedia, {getCurrentNewMediaPopup} from '../popups/newMedia';
 import {toast, toastNew} from '../toast';
 import {MessageEntity, DraftMessage, WebPage, Message, UserFull, AttachMenuPeerType, BotMenuButton, MessageMedia, InputReplyTo, Chat as MTChat, User, ChatFull, Dialog} from '../../layer';
@@ -142,6 +142,7 @@ import PopupStars from '../popups/stars';
 import SolidJSHotReloadGuardProvider from '../../lib/solidjs/hotReloadGuardProvider';
 import {makeMessageMediaInputForSuggestedPost} from '../../lib/appManagers/utils/messages/makeMessageMediaInput';
 import showFrozenPopup from '../popups/frozen';
+import ensureRecorderLoaded from '../../lib/loadRecorder';
 
 // console.log('Recorder', Recorder);
 
@@ -156,6 +157,23 @@ export const POSTING_NOT_ALLOWED_MAP: {[action in ChatRights]?: LangPackKey} = {
   send_plain: 'GlobalSendMessageRestricted',
   send_polls: 'ErrorSendRestrictedPollsAll',
   send_inline: 'GlobalAttachInlineRestricted'
+};
+
+type ConfirmationSettingKey = 'stickers' | 'gifs' | 'voiceMessages';
+
+const CONFIRMATION_POPUP_TEXT: Record<ConfirmationSettingKey, {title: LangPackKey, description: LangPackKey}> = {
+  stickers: {
+    title: 'ClientSettings.Confirmations.Popup.Stickers.Title',
+    description: 'ClientSettings.Confirmations.Popup.Stickers.Description'
+  },
+  gifs: {
+    title: 'ClientSettings.Confirmations.Popup.Gifs.Title',
+    description: 'ClientSettings.Confirmations.Popup.Gifs.Description'
+  },
+  voiceMessages: {
+    title: 'ClientSettings.Confirmations.Popup.VoiceMessages.Title',
+    description: 'ClientSettings.Confirmations.Popup.VoiceMessages.Description'
+  }
 };
 
 type ChatInputHelperType = 'edit' | 'webpage' | 'forward' | 'reply' | 'suggested';
@@ -875,80 +893,96 @@ export default class ChatInput {
   }
 
   private constructRecorder() {
-    const Recorder = (window as any).Recorder;
-    if(Recorder) try {
-      this.recorder = new Recorder({
-        // encoderBitRate: 32,
-        // encoderPath: "../dist/encoderWorker.min.js",
-        encoderSampleRate: 48000,
-        monitorGain: 0,
-        numberOfChannels: 1,
-        recordingGain: 1,
-        reuseWorker: true
-      });
-    } catch(err) {
-      console.error('Recorder constructor error:', err);
-    }
-
-    if(!this.recorder) {
-      return;
-    }
-
-    attachClickEvent(this.btnCancelRecord, this.onCancelRecordClick, {listenerSetter: this.listenerSetter});
-
-    this.recorder.onstop = () => {
-      this.setRecording(false);
-      this.chatInput.classList.remove('is-locked');
-      this.recordRippleEl.style.transform = '';
-    };
-
-    this.recorder.ondataavailable = async(typedArray: Uint8Array) => {
-      if(this.releaseMediaPlayback) {
-        this.releaseMediaPlayback();
-        this.releaseMediaPlayback = undefined;
-      }
-
-      if(this.recordingOverlayListener) {
-        this.listenerSetter.remove(this.recordingOverlayListener);
-        this.recordingOverlayListener = undefined;
-      }
-
-      if(this.recordingNavigationItem) {
-        appNavigationController.removeItem(this.recordingNavigationItem);
-        this.recordingNavigationItem = undefined;
-      }
-
-      if(this.recordCanceled) {
+    ensureRecorderLoaded().then(() => {
+      if(this.recorder) {
         return;
       }
 
-      const sendingParams = this.chat.getMessageSendingParams();
+      const Recorder = (window as any).Recorder;
+      if(!Recorder) {
+        return;
+      }
 
-      const preparedPaymentResult = await this.paidMessageInterceptor.prepareStarsForPayment(1);
-      if(preparedPaymentResult === PAYMENT_REJECTED) return;
-
-      sendingParams.confirmedPaymentResult = preparedPaymentResult;
-
-      const duration = (Date.now() - this.recordStartTime) / 1000 | 0;
-      const dataBlob = new Blob([typedArray], {type: 'audio/ogg'});
-      opusDecodeController.decode(typedArray, true).then((result) => {
-        opusDecodeController.setKeepAlive(false);
-
-        // тут objectURL ставится уже с audio/wav
-        this.managers.appMessagesManager.sendFile({
-          ...sendingParams,
-          file: dataBlob,
-          isVoiceMessage: true,
-          isMedia: true,
-          duration,
-          waveform: result.waveform,
-          objectURL: result.url,
-          clearDraft: true
+      try {
+        this.recorder = new Recorder({
+          // encoderBitRate: 32,
+          // encoderPath: "../dist/encoderWorker.min.js",
+          encoderSampleRate: 48000,
+          monitorGain: 0,
+          numberOfChannels: 1,
+          recordingGain: 1,
+          reuseWorker: true
         });
+      } catch(err) {
+        console.error('Recorder constructor error:', err);
+      }
 
-        this.onMessageSent(false, true);
-      });
-    };
+      if(!this.recorder) {
+        return;
+      }
+
+      attachClickEvent(this.btnCancelRecord, this.onCancelRecordClick, {listenerSetter: this.listenerSetter});
+
+      this.recorder.onstop = () => {
+        this.setRecording(false);
+        this.chatInput.classList.remove('is-locked');
+        this.recordRippleEl.style.transform = '';
+      };
+
+      this.recorder.ondataavailable = async(typedArray: Uint8Array) => {
+        if(this.releaseMediaPlayback) {
+          this.releaseMediaPlayback();
+          this.releaseMediaPlayback = undefined;
+        }
+
+        if(this.recordingOverlayListener) {
+          this.listenerSetter.remove(this.recordingOverlayListener);
+          this.recordingOverlayListener = undefined;
+        }
+
+        if(this.recordingNavigationItem) {
+          appNavigationController.removeItem(this.recordingNavigationItem);
+          this.recordingNavigationItem = undefined;
+        }
+
+        if(this.recordCanceled) {
+          return;
+        }
+
+        if(!(await this.confirmSending('voiceMessages'))) {
+          return;
+        }
+
+        const sendingParams = this.chat.getMessageSendingParams();
+
+        const preparedPaymentResult = await this.paidMessageInterceptor.prepareStarsForPayment(1);
+        if(preparedPaymentResult === PAYMENT_REJECTED) return;
+
+        sendingParams.confirmedPaymentResult = preparedPaymentResult;
+
+        const duration = (Date.now() - this.recordStartTime) / 1000 | 0;
+        const dataBlob = new Blob([typedArray], {type: 'audio/ogg'});
+        opusDecodeController.decode(typedArray, true).then((result) => {
+          opusDecodeController.setKeepAlive(false);
+
+          // тут objectURL ставится уже с audio/wav
+          this.managers.appMessagesManager.sendFile({
+            ...sendingParams,
+            file: dataBlob,
+            isVoiceMessage: true,
+            isMedia: true,
+            duration,
+            waveform: result.waveform,
+            objectURL: result.url,
+            clearDraft: true
+          });
+
+          this.onMessageSent(false, true);
+        });
+      };
+    }).catch((err) => {
+      console.error('Recorder script load error:', err);
+    });
   }
 
   public constructPeerHelpers() {
@@ -3910,6 +3944,14 @@ export default class ChatInput {
       return false;
     }
 
+    const confirmationType: ConfirmationSettingKey | undefined =
+      document.type === 'sticker' ? 'stickers' :
+        (document.type === 'gif' ? 'gifs' : undefined);
+
+    if(confirmationType && !(await this.confirmSending(confirmationType))) {
+      return false;
+    }
+
     const sendingParams = this.chat.getMessageSendingParams();
 
     const preparedPaymentResult = await this.paidMessageInterceptor.prepareStarsForPayment(1);
@@ -3931,6 +3973,26 @@ export default class ChatInput {
     }
 
     return true;
+  }
+
+  private async confirmSending(type: ConfirmationSettingKey) {
+    const confirmations = rootScope.settings.client?.confirmations;
+    if(!confirmations || !confirmations[type]) {
+      return true;
+    }
+
+    const {title, description} = CONFIRMATION_POPUP_TEXT[type];
+
+    try {
+      await confirmationPopup({
+        titleLangKey: title,
+        descriptionLangKey: description,
+        button: {langKey: 'OK'}
+      });
+      return true;
+    } catch(err) {
+      return false;
+    }
   }
 
   private canToggleHideAuthor() {

@@ -127,6 +127,11 @@ export type StateSettings = {
       localPremium: boolean,
       disableAds: boolean
     },
+    confirmations?: {
+      stickers: boolean,
+      gifs: boolean,
+      voiceMessages: boolean
+    },
     contextMenu?: {
       reactionsPanel: boolean,
       viewsPanel: boolean,
@@ -423,6 +428,11 @@ export const SETTINGS_INIT: StateSettings = {
     premium: {
       localPremium: false,
       disableAds: true
+    },
+    confirmations: {
+      stickers: false,
+      gifs: false,
+      voiceMessages: false
     },
     contextMenu: {
       reactionsPanel: true,
