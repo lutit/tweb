@@ -98,16 +98,25 @@ $row-border-radius: $border-radius-medium;
     .row-title {
       grid-area: title;
       align-self: flex-end;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .row-subtitle {
       grid-area: subtitle;
       align-self: flex-start;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .row-midtitle {
       grid-area: midtitle;
       align-self: flex-start;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .checkbox-field {
@@ -145,7 +154,7 @@ $row-border-radius: $border-radius-medium;
 
     .row-title,
     .row-subtitle {
-      overflow: visible;
+      overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       min-width: 0;
