@@ -175,7 +175,18 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter
       });
 
-      container.append(row.container);
+      const serviceTimeRow = new Row({
+        titleLangKey: 'ClientSettings.Chats.ShowTimeOnServiceMessages',
+        checkboxField: new CheckboxField({
+          name: 'client-chats-show-service-time',
+          stateKey: joinDeepPath('settings', 'client', 'chats', 'showTimeOnServiceMessages'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(row.container, serviceTimeRow.container);
     }
 
     {

@@ -120,7 +120,8 @@ export type StateSettings = {
       goOfflineAutomatically: boolean
     },
     chats: {
-      showSecondsOnMessages: boolean
+      showSecondsOnMessages: boolean,
+      showTimeOnServiceMessages: boolean
     },
     premium?: {
       localPremium: boolean,
@@ -410,7 +411,8 @@ export const SETTINGS_INIT: StateSettings = {
       goOfflineAutomatically: false
     },
     chats: {
-      showSecondsOnMessages: false
+      showSecondsOnMessages: false,
+      showTimeOnServiceMessages: false
     },
     premium: {
       localPremium: false,

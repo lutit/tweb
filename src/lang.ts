@@ -3855,6 +3855,7 @@ const lang = {
 
   'ClientSettings.Chats': 'Chats',
   'ClientSettings.Chats.ShowSecondsOnMessages': 'Show seconds on messages',
+  'ClientSettings.Chats.ShowTimeOnServiceMessages': 'Show time on service messages',
 
   'ClientSettings.Premium': 'Premium',
   'ClientSettings.Premium.LocalPremium': 'Local Telegram Premium',

@@ -145,7 +145,7 @@ import apiManagerProxy from '../../lib/mtproto/mtprotoworker';
 import {_tgico} from '../../helpers/tgico';
 import setBlankToAnchor from '../../lib/richTextProcessor/setBlankToAnchor';
 import addAnchorListener, {UNSAFE_ANCHOR_LINK_TYPES} from '../../helpers/addAnchorListener';
-import {formatDate, formatMonthsDuration} from '../../helpers/date';
+import {formatDate, formatMonthsDuration, formatTime} from '../../helpers/date';
 import {JSX} from 'solid-js';
 import Giveaway, {getGiftAssetName, onGiveawayClick} from './giveaway';
 import PopupGiftLink from '../popups/giftLink';
@@ -5513,6 +5513,9 @@ export default class ChatBubbles {
 
       const s = document.createElement('div');
       s.classList.add('service-msg');
+
+      const showTimeOnService = rootScope.settings?.client?.chats?.showTimeOnServiceMessages;
+      const serviceTime = showTimeOnService ? formatTime(new Date(message.date * 1000)) : undefined;
       if(action) {
         const isGiftCode = action._ === 'messageActionGiftCode';
         let promise: Promise<any>;
@@ -5658,6 +5661,13 @@ export default class ChatBubbles {
             message,
             ...wrapOptions
           }).then((el) => s.append(el));
+        }
+
+        if(serviceTime) {
+          const timeWrapper = document.createElement('span');
+          timeWrapper.style.marginRight = '4px';
+          timeWrapper.append('(', serviceTime, ')');
+          s.prepend(timeWrapper);
         }
 
         if(action._ === 'messageActionGiftPremium' || (isGiftCode && shouldDisplayGiftCodeAsGift(action))) {

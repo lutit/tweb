@@ -16,6 +16,7 @@
 
   "ClientSettings.Chats": "Чаты",
   "ClientSettings.Chats.ShowSecondsOnMessages": "Показывать секунды у сообщений",
+  "ClientSettings.Chats.ShowTimeOnServiceMessages": "Показывать время у сервисных сообщений",
 
   "ClientSettings.Premium": "Премиум",
   "ClientSettings.Premium.LocalPremium": "Локальный Telegram Premium",
