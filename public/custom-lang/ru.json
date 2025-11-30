@@ -38,6 +38,8 @@
   "ClientSettings.Profile.IdFormat": "Формат ID",
   "ClientSettings.Profile.IdFormat.BotApi": "Bot API",
   "ClientSettings.Profile.IdFormat.TelegramApi": "Telegram API",
+  "ClientSettings.Profile.HidePhone": "Скрыть номер телефона",
+  "ClientSettings.Profile.HiddenPhone": "Скрыто",
 
    "ClientSettings.Id": "ID",
    "ClientSettings.Id.Format.Hide": "Скрыть",

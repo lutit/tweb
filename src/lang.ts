@@ -3885,6 +3885,8 @@ const lang = {
   'ClientSettings.Profile.IdFormat': 'ID format',
   'ClientSettings.Profile.IdFormat.BotApi': 'Bot API',
   'ClientSettings.Profile.IdFormat.TelegramApi': 'Telegram API',
+  'ClientSettings.Profile.HidePhone': 'Hide phone number text',
+  'ClientSettings.Profile.HiddenPhone': 'Hidden',
 
   'ClientSettings.Id': 'ID',
   'ClientSettings.Id.Format.Hide': 'Hide',

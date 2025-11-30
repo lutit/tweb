@@ -214,6 +214,23 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
     }
 
     {
+      const container = section('ClientSettings.Profile');
+
+      const hidePhoneRow = new Row({
+        titleLangKey: 'ClientSettings.Profile.HidePhone',
+        checkboxField: new CheckboxField({
+          name: 'client-profile-hide-phone',
+          stateKey: joinDeepPath('settings', 'client', 'profile', 'hidePhoneNumberText'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(hidePhoneRow.container);
+    }
+
+    {
       const container = section('ClientSettings.Id');
 
       const form = document.createElement('form');

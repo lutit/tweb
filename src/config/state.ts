@@ -140,7 +140,8 @@ export type StateSettings = {
     },
     forceCopy?: boolean,
     profile?: {
-      idFormat: 'hide' | 'botApi' | 'telegramApi'
+      idFormat: 'hide' | 'botApi' | 'telegramApi',
+      hidePhoneNumberText: boolean
     }
   }
 };
@@ -423,7 +424,7 @@ export const SETTINGS_INIT: StateSettings = {
     },
     chats: {
       showSecondsOnMessages: false,
-      showTimeOnServiceMessages: false
+      showTimeOnServiceMessages: true
     },
     premium: {
       localPremium: false,
@@ -432,7 +433,7 @@ export const SETTINGS_INIT: StateSettings = {
     confirmations: {
       stickers: false,
       gifs: false,
-      voiceMessages: false
+      voiceMessages: true
     },
     contextMenu: {
       reactionsPanel: true,
@@ -442,7 +443,8 @@ export const SETTINGS_INIT: StateSettings = {
     },
     forceCopy: true,
     profile: {
-      idFormat: 'botApi'
+      idFormat: 'botApi',
+      hidePhoneNumberText: true
     }
   }
 };

@@ -593,7 +593,7 @@ PeerProfile.PersonalChannel = () => {
 
 PeerProfile.Phone = () => {
   const context = useContext(PeerProfileContext);
-  const {I18n, i18n, toast} = useHotReloadGuard();
+  const {I18n, i18n, toast, rootScope} = useHotReloadGuard();
   const appConfig = useAppConfig();
   const [appState] = useAppState();
 
@@ -618,6 +618,10 @@ PeerProfile.Phone = () => {
     copyTextToClipboard(phoneDetails().formatted.replace(/\s/g, ''));
     toast(I18n.format('PhoneCopied', true));
   };
+
+  const shouldHidePhoneText = createMemo(() => {
+    return context.peerId === rootScope.myId && !!appState.settings.client?.profile?.hidePhoneNumberText;
+  });
 
   return (
     <Show when={!!phoneDetails()?.phone}>
@@ -645,7 +649,7 @@ PeerProfile.Phone = () => {
         }}
       >
         <Row.Icon icon="phone" />
-        <Row.Title>{phoneDetails().formatted}</Row.Title>
+        <Row.Title>{shouldHidePhoneText() ? i18n('ClientSettings.Profile.HiddenPhone') : phoneDetails().formatted}</Row.Title>
         <Row.Subtitle>{i18n(phoneDetails().isAnonymous ? 'AnonymousNumber' : 'Phone')}</Row.Subtitle>
       </Row>
     </Show>
