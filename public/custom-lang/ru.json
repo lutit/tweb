@@ -32,9 +32,14 @@
    "ClientSettings.Id": "ID",
    "ClientSettings.Id.Format.Hide": "Скрыть",
    "ClientSettings.Id.Format.BotApi": "Bot API",
-   "ClientSettings.Id.Format.TelegramApi": "Telegram API",
+  "ClientSettings.Id.Format.TelegramApi": "Telegram API",
 
   "ClientSettings.AyuMoments": "Ayu моменты",
+  "ClientSettings.ContextMenu": "Элементы контекстного меню",
+  "ClientSettings.ContextMenu.ReactionsPanel": "Панель реакций",
+  "ClientSettings.ContextMenu.ViewsPanel": "Панель просмотров",
+  "ClientSettings.ContextMenu.Details": "Подробности",
+  "ClientSettings.ContextMenu.RepeatMessage": "Повтор сообщения",
 
   "ClientSettings.Other": "Другое",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",

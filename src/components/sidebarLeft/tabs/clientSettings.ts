@@ -263,6 +263,33 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       container.append(forceCopyRow.container);
     }
 
+    {
+      const container = section('ClientSettings.ContextMenu');
+
+      const options = [
+        {key: 'reactionsPanel', langKey: 'ClientSettings.ContextMenu.ReactionsPanel', icon: 'reactions'},
+        {key: 'viewsPanel', langKey: 'ClientSettings.ContextMenu.ViewsPanel', icon: 'channelviews'},
+        {key: 'details', langKey: 'ClientSettings.ContextMenu.Details', icon: 'info'},
+        {key: 'repeatMessage', langKey: 'ClientSettings.ContextMenu.RepeatMessage', icon: 'rotate_right'}
+      ] as const;
+
+      options.forEach(({key, langKey, icon}) => {
+        const row = new Row({
+          icon,
+          titleLangKey: langKey,
+          checkboxField: new CheckboxField({
+            name: `client-contextmenu-${key}`,
+            stateKey: joinDeepPath('settings', 'client', 'contextMenu', key),
+            listenerSetter: this.listenerSetter,
+            toggle: true
+          }),
+          listenerSetter: this.listenerSetter
+        });
+
+        container.append(row.container);
+      });
+    }
+
     // Important: do NOT add anything below the "ClientSettings.Other" section it must always be the last one.
     {
       const container = section('ClientSettings.Other');

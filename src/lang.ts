@@ -3882,6 +3882,11 @@ const lang = {
   'ClientSettings.Id.Format.TelegramApi': 'Telegram API',
 
   'ClientSettings.AyuMoments': 'Ayu moments',
+  'ClientSettings.ContextMenu': 'Context Menu Elements',
+  'ClientSettings.ContextMenu.ReactionsPanel': 'Reactions Panel',
+  'ClientSettings.ContextMenu.ViewsPanel': 'Views Panel',
+  'ClientSettings.ContextMenu.Details': 'Details',
+  'ClientSettings.ContextMenu.RepeatMessage': 'Repeat Message',
 
   'ClientSettings.Other': 'Other',
   'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',

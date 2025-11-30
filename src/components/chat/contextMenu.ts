@@ -633,7 +633,7 @@ export default class ChatContextMenu {
           PopupElement.createPopup(PopupToggleReadDate, this.peerId, 'readTime');
         }
       },
-      verify: () => this.peerId.isUser() && this.managers.appMessagesManager.canViewMessageReadParticipants(this.message),
+      verify: () => this.isContextMenuFeatureEnabled('viewsPanel') && this.peerId.isUser() && this.managers.appMessagesManager.canViewMessageReadParticipants(this.message),
       notDirect: () => true,
       localName: 'views',
       checkForClose: () => {
@@ -648,11 +648,11 @@ export default class ChatContextMenu {
       icon: 'rotate_right',
       text: 'Message.Context.Repeat',
       onClick: this.onRepeatClick,
-      verify: () => !this.noForwards && !!this.message && !this.chat.selection.isSelecting && this.chat.bubbles.canForward(this.message)
+      verify: () => this.isContextMenuFeatureEnabled('repeatMessage') && !this.noForwards && !!this.message && !this.chat.selection.isSelecting && this.chat.bubbles.canForward(this.message)
     }, createSubmenuTrigger({
       icon: 'info',
       text: 'Message.Context.Details',
-      verify: () => !this.chat.selection.isSelecting && !!this.message,
+      verify: () => this.isContextMenuFeatureEnabled('details') && !this.chat.selection.isSelecting && !!this.message,
       separatorDown: true
     }, this.createDetailsSubmenu) as ChatContextMenuButton, {
       icon: 'send2',
@@ -1180,6 +1180,15 @@ export default class ChatContextMenu {
     });
   }
 
+  private isContextMenuFeatureEnabled(feature: 'reactionsPanel' | 'viewsPanel' | 'details' | 'repeatMessage') {
+    const contextMenuSettings = rootScope.settings?.client?.contextMenu;
+    if(!contextMenuSettings) {
+      return true;
+    }
+
+    return contextMenuSettings[feature] !== false;
+  }
+
   private createDetailsDisplay(labelKey: LangPackKey, value: string | HTMLElement) {
     const container = document.createElement('span');
     container.classList.add('btn-menu-item-with-auxiliary-text');
@@ -1416,6 +1425,7 @@ export default class ChatContextMenu {
     let reactionsMenu: ChatReactionsMenu;
     let reactionsMenuPosition: 'horizontal' | 'vertical';
     if(
+      this.isContextMenuFeatureEnabled('reactionsPanel') &&
       this.message &&
       (this.message._ === 'message' || (this.message._ === 'messageService' && this.message.pFlags.reactions_are_possible)) &&
       !this.chat.selection.isSelecting &&

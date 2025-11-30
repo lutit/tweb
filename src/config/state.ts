@@ -127,6 +127,12 @@ export type StateSettings = {
       localPremium: boolean,
       disableAds: boolean
     },
+    contextMenu?: {
+      reactionsPanel: boolean,
+      viewsPanel: boolean,
+      details: boolean,
+      repeatMessage: boolean
+    },
     forceCopy?: boolean,
     profile?: {
       idFormat: 'hide' | 'botApi' | 'telegramApi'
@@ -417,6 +423,12 @@ export const SETTINGS_INIT: StateSettings = {
     premium: {
       localPremium: false,
       disableAds: true
+    },
+    contextMenu: {
+      reactionsPanel: true,
+      viewsPanel: true,
+      details: true,
+      repeatMessage: true
     },
     forceCopy: true,
     profile: {
