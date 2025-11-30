@@ -163,11 +163,11 @@ export default class AppSettingsTab extends SliderSuperTab {
     // };
 
     const b = [
+      m('paper_plane_n', 'ClientSettings.MenuTitle', AppClientSettingsTab),
       m('unmute', 'AccountSettings.Notifications', AppNotificationsTab),
       m('data', 'DataSettings', AppDataAndStorageTab),
       m('lock', 'AccountSettings.PrivacyAndSecurity', AppPrivacyAndSecurityTab),
       m('settings', 'Telegram.GeneralSettingsViewController', AppGeneralSettingsTab),
-      m('hide', 'ClientSettings.MenuTitle', AppClientSettingsTab),
       m('folder', 'AccountSettings.Filters', AppChatFoldersTab),
       m('stickers_face', 'StickersName', AppStickersAndEmojiTab)
     ];
