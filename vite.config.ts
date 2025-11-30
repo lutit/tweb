@@ -14,15 +14,13 @@ import path from 'path';
 
 const rootDir = resolve(__dirname);
 const ENV_LOCAL_FILE_PATH = path.join(rootDir, '.env.local');
+const ENV_LOCAL_EXAMPLE_PATH = path.join(rootDir, '.env.local.example');
 
-const isDEV = process.env.NODE_ENV === 'development';
-if(isDEV) {
-  if(!existsSync(ENV_LOCAL_FILE_PATH)) {
-    copyFileSync(path.join(rootDir, '.env.local.example'), ENV_LOCAL_FILE_PATH);
+const ensureLocalEnv = () => {
+  if(!existsSync(ENV_LOCAL_FILE_PATH) && existsSync(ENV_LOCAL_EXAMPLE_PATH)) {
+    copyFileSync(ENV_LOCAL_EXAMPLE_PATH, ENV_LOCAL_FILE_PATH);
   }
-
-  watchLangFile();
-}
+};
 
 const handlebarsPlugin = handlebars({
   context: {
@@ -67,95 +65,150 @@ if(USE_OWN_SOLID) {
   console.log('using original solid');
 }
 
-export default defineConfig({
-  plugins: [
-    // devtools({
-    //   /* features options - all disabled by default */
-    //   autoname: true // e.g. enable autoname
-    // }),
-    process.env.VITEST ? undefined : checker({
-      typescript: true,
-      eslint: {
-        // for example, lint .ts and .tsx
-        lintCommand: 'eslint "./src/**/*.{ts,tsx}" --ignore-pattern "/src/solid/*"',
-        useFlatConfig: true
-      }
-    }),
-    solidPlugin(),
-    handlebarsPlugin as any,
-    USE_SSL ? (basicSsl as any)(SSL_CONFIG) : undefined,
-    visualizer({
-      gzipSize: true,
-      template: 'treemap'
-    })
-  ].filter(Boolean),
-  test: {
-    // include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/cypress/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-      '**/solid/**'
-    ],
-    // coverage: {
-    //   provider: 'v8',
-    //   reporter: ['text', 'lcov'],
-    //   include: ['src/**/*.ts', 'store/src/**/*.ts', 'web/src/**/*.ts'],
-    //   exclude: ['**/*.d.ts', 'src/server/*.ts', 'store/src/**/server.ts']
-    // },
-    environment: 'jsdom',
-    testTransformMode: {web: ['.[jt]sx?$']},
-    // otherwise, solid would be loaded twice:
-    // deps: {registerNodeLoader: true},
-    // if you have few tests, try commenting one
-    // or both out to improve performance:
-    threads: false,
-    isolate: false,
-    globals: true,
-    setupFiles: ['./src/tests/setup.ts']
-  },
-  server: serverOptions,
-  base: '',
-  build: {
-    target: 'es2020',
-    sourcemap: true,
-    assetsDir: '',
-    copyPublicDir: false,
-    emptyOutDir: true,
-    minify: NO_MINIFY ? false : undefined,
-    rollupOptions: {
-      output: {
-        sourcemapIgnoreList: serverOptions.sourcemapIgnoreList
-      }
-      // input: {
-      //   main: './index.html',
-      //   sw: './src/index.service.ts'
-      // }
-    }
-    // cssCodeSplit: true
-  },
-  worker: {
-    format: 'es'
-  },
-  css: {
-    devSourcemap: true,
-    postcss: {
-      plugins: [
-        autoprefixer({}) // add options if needed
-      ]
-    }
-  },
-  resolve: {
-    // conditions: ['development', 'browser'],
-    alias: USE_OWN_SOLID ? {
-      'rxcore': resolve(rootDir, SOLID_PATH, 'web/core'),
-      'solid-js/jsx-runtime': resolve(rootDir, SOLID_PATH, 'jsx'),
-      'solid-js/web': resolve(rootDir, SOLID_PATH, 'web'),
-      'solid-js/store': resolve(rootDir, SOLID_PATH, 'store'),
-      'solid-js': resolve(rootDir, SOLID_PATH),
-      ...ADDITIONAL_ALIASES
-    } : ADDITIONAL_ALIASES
+const ALWAYS_PREFETCH_DEPS = [
+  '@solid-primitives/refs',
+  '@solid-primitives/transition-group',
+  'big-integer',
+  'fast-png',
+  'hls.js',
+  'js-md5',
+  'mp4-muxer',
+  'pako',
+  'qr-code-styling',
+  'tinyld'
+];
+
+const shouldEnableLangWatch = () => {
+  const flag = process.env.TWEB_LANG_WATCH || process.env.VITE_LANG_WATCH;
+  return flag === '1' || flag === 'true';
+};
+
+const shouldEnableChecker = (isServe: boolean) => {
+  const flag = process.env.VITE_CHECKER || process.env.TWEB_CHECKER;
+  if(flag) {
+    return flag === '1' || flag === 'true';
   }
+
+  return !isServe;
+};
+
+const shouldEnableAnalyzer = () => {
+  const flag = process.env.BUNDLE_ANALYZE || process.env.ANALYZE || process.env.VITE_ANALYZE;
+  return flag === '1' || flag === 'true';
+};
+
+const shouldKeepDevCssSourceMaps = () => {
+  const flag = process.env.VITE_CSS_SOURCEMAPS;
+  if(typeof flag === 'string') {
+    return flag === '1' || flag === 'true';
+  }
+
+  return false;
+};
+
+export default defineConfig(({command}) => {
+  const isServe = command === 'serve';
+  const enableLangWatch = isServe && shouldEnableLangWatch();
+  const enableChecker = shouldEnableChecker(isServe) && !process.env.VITEST;
+  const enableAnalyzer = shouldEnableAnalyzer();
+
+  if(isServe) {
+    ensureLocalEnv();
+    if(enableLangWatch) {
+      watchLangFile();
+    }
+  }
+
+  return {
+    plugins: [
+      enableChecker ? checker({
+        typescript: true,
+        eslint: {
+          lintCommand: 'eslint "./src/**/*.{ts,tsx}" --ignore-pattern "/src/solid/*"',
+          useFlatConfig: true
+        }
+      }) : undefined,
+      solidPlugin({
+        hot: isServe,
+        dev: isServe
+      }),
+      handlebarsPlugin as any,
+      USE_SSL ? (basicSsl as any)(SSL_CONFIG) : undefined,
+      enableAnalyzer ? visualizer({
+        gzipSize: true,
+        template: 'treemap',
+        filename: 'stats.html'
+      }) : undefined
+    ].filter(Boolean),
+    test: {
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/cypress/**',
+        '**/.{idea,git,cache,output,temp}/**',
+        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+        '**/solid/**'
+      ],
+      environment: 'jsdom',
+      testTransformMode: {web: ['.[jt]sx?$']},
+      threads: false,
+      isolate: false,
+      globals: true,
+      setupFiles: ['./src/tests/setup.ts']
+    },
+    server: {
+      ...serverOptions,
+      watch: {
+        awaitWriteFinish: {
+          stabilityThreshold: 200,
+          pollInterval: 100
+        }
+      }
+    },
+    base: '',
+    optimizeDeps: {
+      include: ALWAYS_PREFETCH_DEPS,
+      esbuildOptions: {
+        target: 'es2022',
+        supported: {
+          'top-level-await': true
+        }
+      }
+    },
+    build: {
+      target: 'es2020',
+      sourcemap: true,
+      assetsDir: '',
+      copyPublicDir: false,
+      emptyOutDir: true,
+      minify: NO_MINIFY ? false : undefined,
+      reportCompressedSize: false,
+      rollupOptions: {
+        output: {
+          sourcemapIgnoreList: serverOptions.sourcemapIgnoreList
+        }
+      }
+    },
+    worker: {
+      format: 'es'
+    },
+    css: {
+      devSourcemap: shouldKeepDevCssSourceMaps(),
+      postcss: {
+        plugins: [
+          autoprefixer({})
+        ]
+      }
+    },
+    resolve: {
+      alias: USE_OWN_SOLID ? {
+        'rxcore': resolve(rootDir, SOLID_PATH, 'web/core'),
+        'solid-js/jsx-runtime': resolve(rootDir, SOLID_PATH, 'jsx'),
+        'solid-js/web': resolve(rootDir, SOLID_PATH, 'web'),
+        'solid-js/store': resolve(rootDir, SOLID_PATH, 'store'),
+        'solid-js': resolve(rootDir, SOLID_PATH),
+        ...ADDITIONAL_ALIASES
+      } : ADDITIONAL_ALIASES
+    }
+  };
 });
