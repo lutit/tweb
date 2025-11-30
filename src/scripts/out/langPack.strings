@@ -148,6 +148,14 @@
 "Message.Context.Selection.Forward" = "Forward selected";
 "Message.Context.Selection.Download" = "Download selected";
 "Message.Context.Selection.SendNow" = "Send selected now";
+"Message.Context.Repeat" = "Repeat Message";
+"Message.Context.Details" = "Details";
+"Message.Context.Details.Id" = "ID";
+"Message.Context.Details.Date" = "Date";
+"Message.Context.Details.FileSize" = "File Size";
+"Message.Context.Details.MimeType" = "MIME Type";
+"Message.Context.Details.Resolution" = "Resolution";
+"Message.Context.Details.Datacenter" = "Datacenter";
 "Message.Unsupported.Desktop" = "__This message is currently not supported on Telegram Web. Try [getdesktop.telegram.org](https://getdesktop.telegram.org/)__";
 "Message.Unsupported.Mobile" = "__This message is currently not supported on Telegram Web. Try [telegram.org/dl](https://telegram.org/dl/)__";
 "Checkbox.Enabled" = "Enabled";
@@ -3355,8 +3363,6 @@
 "ClientSettings.Id.Format.Hide" = "Hide";
 "ClientSettings.Id.Format.BotApi" = "Bot API";
 "ClientSettings.Id.Format.TelegramApi" = "Telegram API";
-
-"ClientSettings.AyuMoments" = "Ayu moments";
 "ClientSettings.AyuMoments" = "Ayu moments";
 "ClientSettings.Other" = "Other";
 "ClientSettings.Other.OpenTgc.Title" = "Telegram client channel";

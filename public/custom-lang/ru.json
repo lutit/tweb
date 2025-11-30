@@ -41,5 +41,14 @@
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",
   "ClientSettings.Other.OpenTgc.Button": "Открыть канал",
   "ClientSettings.Other.SourceCode.Title": "Исходный код",
-  "ClientSettings.Other.SourceCode.Subtitle": "Открыть проект на GitHub"
+  "ClientSettings.Other.SourceCode.Subtitle": "Открыть проект на GitHub",
+
+  "Message.Context.Repeat": "Повторить сообщение",
+  "Message.Context.Details": "Детали",
+  "Message.Context.Details.Id": "ID",
+  "Message.Context.Details.Date": "Дата",
+  "Message.Context.Details.FileSize": "Размер файла",
+  "Message.Context.Details.MimeType": "MIME-тип",
+  "Message.Context.Details.Resolution": "Разрешение",
+  "Message.Context.Details.Datacenter": "Дата-центр"
 }

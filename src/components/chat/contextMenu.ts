@@ -87,6 +87,7 @@ import {isSensitive} from '../../helpers/restrictions';
 import {hasSensitiveSpoiler} from '../wrappers/mediaSpoiler';
 import {useIsFrozen} from '../../stores/appState';
 import prepareTextWithEntitiesForCopying from '../../helpers/prepareTextWithEntitiesForCopying';
+import formatBytes from '../../helpers/formatBytes';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -644,6 +645,16 @@ export default class ChatContextMenu {
       verify: () => this.checklistItem !== undefined,
       separatorDown: true
     }, this.createChecklistItemSubmenu) as ChatContextMenuButton, {
+      icon: 'rotate_right',
+      text: 'Message.Context.Repeat',
+      onClick: this.onRepeatClick,
+      verify: () => !this.noForwards && !!this.message && !this.chat.selection.isSelecting && this.chat.bubbles.canForward(this.message)
+    }, createSubmenuTrigger({
+      icon: 'info',
+      text: 'Message.Context.Details',
+      verify: () => !this.chat.selection.isSelecting && !!this.message,
+      separatorDown: true
+    }, this.createDetailsSubmenu) as ChatContextMenuButton, {
       icon: 'send2',
       text: 'MessageScheduleSend',
       onClick: this.onSendScheduledClick,
@@ -1067,6 +1078,126 @@ export default class ChatContextMenu {
     return ButtonMenu({
       buttons: filteredButtons
     })
+  }
+
+  private createDetailsSubmenu = async({middleware}: CreateSubmenuArgs) => {
+    const message = this.message as Message.message;
+    const items: ButtonMenuItemOptionsVerifiable[] = [];
+
+    // ID
+    if(this.mid != null) {
+      items.push({
+        icon: 'info',
+        regularText: this.createDetailsDisplay('Message.Context.Details.Id', '' + getServerMessageId(this.mid)),
+        onClick: () => copyTextToClipboard(String(getServerMessageId(this.mid)))
+      });
+    }
+
+    // Date
+    if(message?.date) {
+      const dateStr = getFullDate(new Date(message.date * 1000), {monthAsNumber: true, leadingZero: true});
+      items.push({
+        icon: 'calendar',
+        regularText: this.createDetailsDisplay('Message.Context.Details.Date', dateStr),
+        onClick: () => copyTextToClipboard(dateStr)
+      });
+    }
+
+    // Media specifics
+    const media = (message?.media as MessageMedia) || undefined;
+    let dcId: number | undefined;
+    let resolution: string | undefined;
+    let mime: string | undefined;
+    let size: number | undefined;
+
+    if(media?._ === 'messageMediaDocument' && media.document?._ === 'document') {
+      const doc = media.document as Document.document;
+      dcId = doc.dc_id;
+      mime = doc.mime_type as any;
+      size = doc.size;
+      const w = (doc.w || (doc.attributes as any)?.w) as number | undefined;
+      const h = (doc.h || (doc.attributes as any)?.h) as number | undefined;
+      if(w && h) resolution = w + 'x' + h;
+    } else if(media?._ === 'messageMediaPhoto' && media.photo?._ === 'photo') {
+      const photo = media.photo as Photo.photo;
+      dcId = photo.dc_id;
+      const sizes = photo.sizes;
+      // Find largest size
+      let maxW = 0, maxH = 0; let bestSize: any;
+      sizes?.forEach((s) => {
+        if('w' in s && 'h' in s) {
+          if(s.w * s.h > maxW * maxH) {
+            maxW = (s as any).w; maxH = (s as any).h; bestSize = s;
+          }
+        }
+      });
+      if(maxW && maxH) resolution = maxW + 'x' + maxH;
+      if(bestSize) {
+        size = (bestSize as any).size || ((bestSize as any).sizes ? (bestSize as any).sizes.slice(-1)[0] : undefined);
+      }
+      mime = 'image/jpeg';
+    }
+
+    if(size != null) {
+      const pretty = formatBytes(size);
+      const prettyText = typeof pretty === 'string' ? pretty : pretty.textContent || String(size);
+      items.push({
+        icon: 'download',
+        regularText: this.createDetailsDisplay('Message.Context.Details.FileSize', pretty),
+        onClick: () => copyTextToClipboard(prettyText?.trim() || String(size))
+      });
+    }
+
+    if(mime) {
+      items.push({
+        icon: 'document',
+        regularText: this.createDetailsDisplay('Message.Context.Details.MimeType', mime),
+        onClick: () => copyTextToClipboard(mime)
+      });
+    }
+
+    if(resolution) {
+      items.push({
+        icon: 'image',
+        regularText: this.createDetailsDisplay('Message.Context.Details.Resolution', resolution),
+        onClick: () => copyTextToClipboard(resolution)
+      });
+    }
+
+    if(dcId != null) {
+      const dc = 'DC ' + dcId;
+      items.push({
+        icon: 'data',
+        regularText: this.createDetailsDisplay('Message.Context.Details.Datacenter', dc),
+        onClick: () => copyTextToClipboard(dc)
+      });
+    }
+
+    if(!middleware()) return;
+
+    return ButtonMenu({
+      buttons: items
+    });
+  }
+
+  private createDetailsDisplay(labelKey: LangPackKey, value: string | HTMLElement) {
+    const container = document.createElement('span');
+    container.classList.add('btn-menu-item-with-auxiliary-text');
+
+    const labelElement = i18n(labelKey);
+    labelElement.classList.add('btn-menu-item-label');
+    container.append(labelElement);
+
+    const valueElement = document.createElement('span');
+    valueElement.classList.add('btn-menu-item-auxiliary-text');
+    if(typeof value === 'string') {
+      valueElement.textContent = value;
+    } else {
+      valueElement.append(value);
+    }
+
+    container.append(valueElement);
+    return container;
   }
 
   public static canDownload(
@@ -1652,6 +1783,25 @@ export default class ChatContextMenu {
         [peerId]: mids
       });
     }
+  };
+
+  private onRepeatClick = async() => {
+    // Forward the message instantly to the same chat
+    if(this.chat.selection.isSelecting) return false;
+
+    const toPeerId = this.chat.peerId;
+    const fromPeerId = this.messagePeerId;
+    const mids = this.isTargetAGroupedItem ? [this.mid] : await this.chat.getMidsByMid(fromPeerId, this.mid);
+
+    const sendingParams = this.chat.getMessageSendingParams();
+    try {
+      await this.managers.appMessagesManager.forwardMessages({
+        ...sendingParams,
+        peerId: toPeerId,
+        fromPeerId,
+        mids
+      });
+    } catch{}
   };
 
   private onSelectClick = () => {
