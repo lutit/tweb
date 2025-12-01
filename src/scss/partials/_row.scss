@@ -470,10 +470,6 @@ $row-border-radius: $border-radius-medium;
   }
 
   &.ghost-mode-header-row {
-    .row-right {
-      margin-inline-start: .5rem;
-    }
-
     // Adjust the Ghost Mode switch paddings (not the whole row)
     .checkbox-field-toggle {
       padding-block: .0625rem;

@@ -50,7 +50,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       const ghostHeaderRow = new Row({
         icon: 'ghost',
         titleLangKey: 'ClientSettings.GhostMode',
-        rightContent: ghostEnabledCheckbox.label,
+        checkboxField: ghostEnabledCheckbox,
         listenerSetter: this.listenerSetter
       });
 
@@ -106,6 +106,8 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
           return;
         }
 
+        e.preventDefault();
+        e.stopPropagation();
         toggleAccordion();
       });
 
