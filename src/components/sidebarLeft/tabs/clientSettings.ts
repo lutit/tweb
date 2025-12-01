@@ -10,6 +10,7 @@ import appImManager from '../../../lib/appManagers/appImManager';
 import {replaceButtonIcon} from '../../button';
 import Icon from '../../icon';
 import safeWindowOpen from '../../../helpers/dom/safeWindowOpen';
+import {setAppSettings} from '../../../stores/appSettings';
 
 export default class AppClientSettingsTab extends SliderSuperTabEventable {
   public init() {
@@ -68,6 +69,11 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       const accordion = document.createElement('div');
       accordion.classList.add('accordion');
 
+      const setAccordionExpanded = (expanded: boolean) => {
+        accordion.classList.toggle('is-expanded', expanded);
+        ghostHeaderRow.container.classList.toggle('accordion-toggler-expanded', expanded);
+      };
+
       const recalcFromCheckboxes = () => {
         const enabledCount = ghostOptionCheckboxes.reduce((acc, {checkbox}) => acc + (checkbox.checked ? 1 : 0), 0);
         countSpan.textContent = I18n.format('ClientSettings.GhostMode.Count', true, [enabledCount, totalOptions]);
@@ -84,12 +90,13 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         });
 
         recalcFromCheckboxes();
+        setAccordionExpanded(g.expanded !== false);
       };
 
       const toggleAccordion = () => {
         const expanded = !accordion.classList.contains('is-expanded');
-        accordion.classList.toggle('is-expanded', expanded);
-        ghostHeaderRow.container.classList.toggle('accordion-toggler-expanded', expanded);
+        setAccordionExpanded(expanded);
+        setAppSettings('client', 'ghostMode', 'expanded', expanded);
       };
 
       ghostHeaderRow.container.addEventListener('click', (e) => {
@@ -146,8 +153,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       makeGhostOption('goOfflineAutomatically', 'ClientSettings.GhostMode.GoOfflineAutomatically');
 
       accordion.style.setProperty('--max-height', (ghostOptionCheckboxes.length * 48) + 'px');
-      accordion.classList.add('is-expanded');
-      ghostHeaderRow.container.classList.add('accordion-toggler-expanded');
+      setAccordionExpanded(rootScope.settings.client?.ghostMode?.expanded !== false);
 
       // When Ghost Mode switch changes, toggle all child checkboxes.
       this.listenerSetter.add(ghostEnabledCheckbox.input)('change', () => {

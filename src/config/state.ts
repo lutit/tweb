@@ -117,7 +117,8 @@ export type StateSettings = {
       dontReadStories: boolean,
       dontSendOnline: boolean,
       dontSendTyping: boolean,
-      goOfflineAutomatically: boolean
+      goOfflineAutomatically: boolean,
+      expanded?: boolean
     },
     chats: {
       showSecondsOnMessages: boolean,
@@ -420,7 +421,8 @@ export const SETTINGS_INIT: StateSettings = {
       dontReadStories: false,
       dontSendOnline: false,
       dontSendTyping: false,
-      goOfflineAutomatically: false
+      goOfflineAutomatically: false,
+      expanded: true
     },
     chats: {
       showSecondsOnMessages: false,
