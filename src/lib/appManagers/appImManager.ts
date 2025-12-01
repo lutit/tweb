@@ -223,6 +223,22 @@ export class AppImManager extends EventListenerBase<{
 
   private ghostAutoOfflineIntervalId: number;
   private ghostAutoOfflineAfterSendTimeoutId: number;
+  private scheduleGhostAutoOffline(delay: number) {
+    if(!isGhostGoOfflineAutomaticallyEnabled()) return;
+
+    if(this.ghostAutoOfflineAfterSendTimeoutId) {
+      clearTimeout(this.ghostAutoOfflineAfterSendTimeoutId);
+    }
+
+    this.ghostAutoOfflineAfterSendTimeoutId = window.setTimeout(() => {
+      this.ghostAutoOfflineAfterSendTimeoutId = undefined;
+      if(!isGhostGoOfflineAutomaticallyEnabled()) {
+        return;
+      }
+
+      this.goOffline();
+    }, delay);
+  }
 
   public construct(managers: AppManagers) {
     this.managers = managers;
@@ -256,6 +272,10 @@ export class AppImManager extends EventListenerBase<{
     idleController.addEventListener('change', (idle) => {
       this.offline = idle;
       this.updateStatus();
+
+      if(isGhostGoOfflineAutomaticallyEnabled() && !idle) {
+        this.scheduleGhostAutoOffline(2500);
+      }
       if(idle) {
         clearInterval(this.updateStatusInterval);
       } else {
@@ -637,18 +657,7 @@ export class AppImManager extends EventListenerBase<{
       }
 
       if(isGhostGoOfflineAutomaticallyEnabled()) {
-        if(this.ghostAutoOfflineAfterSendTimeoutId) {
-          clearTimeout(this.ghostAutoOfflineAfterSendTimeoutId);
-        }
-
-        this.ghostAutoOfflineAfterSendTimeoutId = window.setTimeout(() => {
-          this.ghostAutoOfflineAfterSendTimeoutId = undefined;
-          if(!isGhostGoOfflineAutomaticallyEnabled()) {
-            return;
-          }
-
-          this.goOffline();
-        }, 3000);
+        this.scheduleGhostAutoOffline(1500);
       }
     });
 
@@ -1897,8 +1906,10 @@ export class AppImManager extends EventListenerBase<{
           }
 
           this.goOffline();
-        }, 4 * 60e3);
+        }, 60e3);
       }
+      // extra safety: ensure we start from offline state
+      this.goOffline();
     } else if(this.ghostAutoOfflineIntervalId) {
       clearInterval(this.ghostAutoOfflineIntervalId);
       this.ghostAutoOfflineIntervalId = 0;
