@@ -1013,6 +1013,7 @@ const lang = {
   'PremiumStoriesFormattingDescription': 'Add links and formatting to your story captions.',
   'TelegramPremiumSubscribedTitle': 'You are all set!',
   'TelegramPremiumSubscribedSubtitle': 'Thank you for subscribing to **Telegram Premium**.\nHere’s what is now unlocked.',
+  'TelegramPremiumSubscribedSubtitle.Local': 'You enabled **Local Telegram Premium** in this browser.\nOn Telegram servers your account remains without Premium – features are unlocked only here.',
   'TelegramPremiumPeerTitle': '%s is a subscriber of **Telegram Premium**',
   'TelegramPremiumPeerSubtitle': 'Owners of **Telegram Premium** accounts have exclusive access to multiple additional features.',
   'TelegramPremiumPeerTitleEmojiStatus': '%s set this emoji from [%s]() as their current status.',

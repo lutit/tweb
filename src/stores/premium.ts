@@ -7,7 +7,13 @@ let serverPremium = rootScope.premium;
 let localPremium = !!rootScope.settings?.client?.premium?.localPremium;
 
 const recompute = () => {
-  setPremium(serverPremium || localPremium);
+  const prev = rootScope.premium;
+  const value = !!(serverPremium || localPremium);
+  setPremium(value);
+  rootScope.premium = value;
+  if(prev !== value) {
+    rootScope.dispatchEventSingle('premium_toggle', value);
+  }
 };
 
 const onAuth = () => {

@@ -266,7 +266,11 @@ export default class PromoSlideTab {
       description = i18n('TelegramPremiumPeerSubtitle');
     } else {
       title = this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedTitle') : i18n('Premium.Boarding.Title');
-      description = this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedSubtitle') : i18n('Premium.Boarding.Info');
+      if(this.options.isPremiumActive && rootScope.settings?.client?.premium?.localPremium) {
+        description = i18n('TelegramPremiumSubscribedSubtitle.Local');
+      } else {
+        description = this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedSubtitle') : i18n('Premium.Boarding.Info');
+      }
     }
 
     headingTextTitle.append(title);

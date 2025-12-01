@@ -79,6 +79,9 @@ export default class PopupPremium extends PopupElement {
     });
 
     safeAssign(this, options);
+    if(rootScope.settings?.client?.premium?.localPremium) {
+      this.title.replaceChildren(I18n.format('ClientSettings.Premium.LocalPremium', true));
+    }
     this.initTabs();
   }
 

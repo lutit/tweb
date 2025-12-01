@@ -64,6 +64,8 @@
   "ClientSettings.Other.SourceCode.Title": "Исходный код",
   "ClientSettings.Other.SourceCode.Subtitle": "Открыть проект на GitHub",
 
+  "TelegramPremiumSubscribedSubtitle.Local": "Вы включили **локальный Telegram Premium** в этом браузере.\nНа серверах Telegram ваш аккаунт по‑прежнему без премиума дополнительные функции работают только здесь.",
+
   "Message.Context.Repeat": "Повторить сообщение",
   "Message.Context.Details": "Детали",
   "Message.Context.Details.Id": "ID",
