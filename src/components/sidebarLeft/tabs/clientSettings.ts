@@ -111,6 +111,11 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
         });
 
         const row = CreateRowFromCheckboxField(checkbox);
+
+        const rowWrapper = document.createElement('div');
+        rowWrapper.classList.add('ghost-mode-checkbox-row');
+        rowWrapper.append(row.container);
+
         ghostOptionCheckboxes.push({name, checkbox});
 
         this.listenerSetter.add(checkbox.input)('change', () => {
@@ -129,7 +134,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
           recalcFromCheckboxes();
         });
 
-        accordion.append(row.container);
+        accordion.append(rowWrapper);
       };
 
       container.append(ghostHeaderRow.container, accordion);
