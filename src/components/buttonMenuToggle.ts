@@ -129,6 +129,7 @@ export default function ButtonMenuToggle({
         buttons: filteredButtons,
         listenerSetter
       });
+      filteredButtons.forEach((button) => button.onOpen?.());
       if(_tempId !== tempId) return;
       _element.classList.add(direction);
       if(direction === 'bottom-center') {

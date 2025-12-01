@@ -62,5 +62,12 @@
   "ClientSettings.Other.OpenTgc.Subtitle": "Open the channel in Telegram",
   "ClientSettings.Other.OpenTgc.Button": "Open channel",
   "ClientSettings.Other.SourceCode.Title": "Source code",
-  "ClientSettings.Other.SourceCode.Subtitle": "Open the project on GitHub"
+  "ClientSettings.Other.SourceCode.Subtitle": "Open the project on GitHub",
+
+  "StickerSet.Details.Id": "Sticker set ID",
+  "StickerSet.Details.AccessHash": "Access hash",
+  "StickerSet.Details.ShortName": "Sticker set username",
+  "StickerSet.Details.Title": "Sticker set title",
+  "StickerSet.Details.Count": "Stickers in set",
+  "StickerSet.Details.Flags": "Flags"
 }

@@ -13,7 +13,7 @@ import {putPreloader} from '../putPreloader';
 import animationIntersector, {AnimationItemGroup} from '../animationIntersector';
 import appImManager from '../../lib/appManagers/appImManager';
 import mediaSizes from '../../helpers/mediaSizes';
-import {i18n} from '../../lib/langPack';
+import {i18n, LangPackKey} from '../../lib/langPack';
 import Button from '../button';
 import findUpClassName from '../../helpers/dom/findUpClassName';
 import toggleDisability from '../../helpers/dom/toggleDisability';
@@ -33,10 +33,11 @@ import {copyTextToClipboard} from '../../helpers/clipboard';
 import wrapRichText from '../../lib/richTextProcessor/wrapRichText';
 import {onMediaCaptionClick} from '../appMediaViewer';
 import DEBUG from '../../config/debug';
-import {ButtonMenuItemOptionsVerifiable} from '../buttonMenu';
+import ButtonMenu, {ButtonMenuItemOptionsVerifiable} from '../buttonMenu';
 import appDownloadManager from '../../lib/appManagers/appDownloadManager';
 import pause from '../../helpers/schedulers/pause';
 import toArray from '../../helpers/array/toArray';
+import createSubmenuTrigger from '../createSubmenuTrigger';
 
 const ANIMATION_GROUP: AnimationItemGroup = 'STICKERS-POPUP';
 
@@ -109,6 +110,26 @@ export default class PopupStickers extends PopupElement {
     });
 
     this.loadStickerSet();
+  }
+
+  private createDetailsDisplay(labelKey: LangPackKey, value: string | HTMLElement) {
+    const container = document.createElement('span');
+    container.classList.add('btn-menu-item-with-auxiliary-text');
+
+    const labelElement = i18n(labelKey);
+    labelElement.classList.add('btn-menu-item-label');
+    container.append(labelElement);
+
+    const valueElement = document.createElement('span');
+    valueElement.classList.add('btn-menu-item-auxiliary-text');
+    if(typeof value === 'string') {
+      valueElement.textContent = value;
+    } else {
+      valueElement.append(value);
+    }
+
+    container.append(valueElement);
+    return container;
   }
 
   private createStickerSetElements(set?: StickerSet.stickerSet) {
@@ -299,7 +320,49 @@ export default class PopupStickers extends PopupElement {
         const text = sets.map((set) => prefix + set.set.short_name).join('\n');
         copyTextToClipboard(text);
       }
-    }];
+    }, createSubmenuTrigger({
+      icon: 'info',
+      text: 'Message.Context.Details',
+      separatorDown: true
+    }, async({middleware}) => {
+      const first = this.sets?.[0];
+      if(!first) return;
+
+      const items: ButtonMenuItemOptionsVerifiable[] = [];
+      const pushRow = (labelKey: LangPackKey, value: string) => {
+        items.push({
+          regularText: this.createDetailsDisplay(labelKey, value),
+          onClick: () => copyTextToClipboard(value)
+        });
+      };
+
+      pushRow('StickerSet.Details.Id', String(first.id));
+      pushRow('StickerSet.Details.AccessHash', String(first.access_hash));
+
+      if(first.short_name) {
+        const username = '@' + first.short_name;
+        pushRow('StickerSet.Details.ShortName', username);
+      }
+
+      pushRow('StickerSet.Details.Title', first.title);
+      pushRow('StickerSet.Details.Count', String(first.count));
+
+      const flags: string[] = [];
+      if(first.pFlags?.official) flags.push('official');
+      if(first.pFlags?.archived) flags.push('archived');
+      if(first.pFlags?.masks) flags.push('masks');
+      if(first.pFlags?.emojis) flags.push('emoji');
+      if(first.pFlags?.creator) flags.push('creator');
+      if(flags.length) {
+        pushRow('StickerSet.Details.Flags', flags.join(', '));
+      }
+
+      if(!middleware()) return;
+
+      return ButtonMenu({
+        buttons: items
+      });
+    })];
 
     if(DEBUG) {
       buttons.push({

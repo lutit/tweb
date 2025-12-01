@@ -71,5 +71,12 @@
   "Message.Context.Details.FileSize": "Размер файла",
   "Message.Context.Details.MimeType": "MIME-тип",
   "Message.Context.Details.Resolution": "Разрешение",
-  "Message.Context.Details.Datacenter": "Дата-центр"
+  "Message.Context.Details.Datacenter": "Дата-центр",
+
+  "StickerSet.Details.Id": "ID набора стикеров",
+  "StickerSet.Details.AccessHash": "Access hash",
+  "StickerSet.Details.ShortName": "Юзернейм набора",
+  "StickerSet.Details.Title": "Название набора",
+  "StickerSet.Details.Count": "Стикеров в наборе",
+  "StickerSet.Details.Flags": "Флаги"
 }

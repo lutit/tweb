@@ -2914,6 +2914,12 @@
 "Sticker.Premium.Click.Info" = "This set contains premium stickers like this one. [View Set]()";
 "Stickers.Recent" = "Recent";
 "StickerSet.DontExist" = "Sorry, this sticker set doesn't seem to exist.";
+"StickerSet.Details.Id" = "Set ID";
+"StickerSet.Details.AccessHash" = "Access hash";
+"StickerSet.Details.ShortName" = "Short name";
+"StickerSet.Details.Title" = "Title";
+"StickerSet.Details.Count" = "Number of stickers";
+"StickerSet.Details.Flags" = "Flags";
 "Text.Context.Copy.Username" = "Copy Username";
 "Text.Context.Copy.Hashtag" = "Copy Hashtag";
 "Time.TomorrowAt" = "tomorrow at %@";
