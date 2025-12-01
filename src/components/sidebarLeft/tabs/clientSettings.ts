@@ -7,7 +7,7 @@ import RadioField from '../../radioField';
 import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
 import I18n from '../../../lib/langPack';
 import appImManager from '../../../lib/appManagers/appImManager';
-import Button from '../../button';
+import {replaceButtonIcon} from '../../button';
 import Icon from '../../icon';
 import safeWindowOpen from '../../../helpers/dom/safeWindowOpen';
 
@@ -15,6 +15,11 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
   public init() {
     this.container.classList.add('general-settings-container');
     this.setTitle('ClientSettings.MenuTitle');
+
+    const isInSettingsPopup = !!this.container.closest('.settings-slider-popup__height-limit');
+    if(isInSettingsPopup) {
+      replaceButtonIcon(this.closeBtn as HTMLElement, 'close');
+    }
 
     const section = generateSection.bind(null, this.scrollable);
 

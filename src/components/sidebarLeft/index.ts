@@ -137,6 +137,14 @@ export class AppSidebarLeft extends SidebarSlider {
   private onResize: () => void;
 
   public foldersSidebarControls: FoldersSidebarControls;
+  private darkModeMenuText?: HTMLElement;
+  private darkModeMoreMenuText?: HTMLElement;
+
+  private updateDarkModeMenuTextElement(element?: HTMLElement) {
+    if(!element) return;
+
+    element.replaceChildren(i18n(themeController.isNight() ? 'DisableDarkMode' : 'EnableDarkMode'));
+  }
 
   constructor() {
     super({
@@ -187,6 +195,14 @@ export class AppSidebarLeft extends SidebarSlider {
         setBadgeContent(el, '' + (count || ''));
       });
     });
+
+    const updateDarkModeMenuTexts = () => {
+      this.updateDarkModeMenuTextElement(this.darkModeMenuText);
+      this.updateDarkModeMenuTextElement(this.darkModeMoreMenuText);
+    };
+
+    rootScope.addEventListener('theme_changed', updateDarkModeMenuTexts);
+    updateDarkModeMenuTexts();
 
     this.backBtn.parentElement.insertBefore(this.toolsBtn, this.backBtn);
 
@@ -620,6 +636,9 @@ export class AppSidebarLeft extends SidebarSlider {
       clb();
     }
 
+    const darkModeMenuText = document.createElement('span');
+    this.darkModeMenuText = darkModeMenuText;
+
     const btnArchive: typeof menuButtons[0] = {
       icon: 'archive',
       text: 'ArchivedChats',
@@ -721,7 +740,7 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     }, {
       icon: 'darkmode',
-      text: themeController.isNight() ? 'DisableDarkMode' : 'EnableDarkMode',
+      regularText: darkModeMenuText,
       onClick: () => {
         themeController.switchTheme();
       }
@@ -730,7 +749,10 @@ export class AppSidebarLeft extends SidebarSlider {
       text: 'ClientSettings.MenuTitle',
       onClick: () => {
         closeTabsBefore(() => {
-          this.createTab(AppClientSettingsTab).open();
+          const popup = new SettingsSliderPopup(this.managers);
+          popup.show();
+          const tab = popup.slider.createTab(AppClientSettingsTab);
+          tab.open();
         });
       }
     }];
@@ -894,7 +916,7 @@ export class AppSidebarLeft extends SidebarSlider {
     };
 
     const darkModeText = document.createElement('span');
-    darkModeText.append(i18n(themeController.isNight() ? 'DisableDarkMode': 'EnableDarkMode'));
+    this.darkModeMoreMenuText = darkModeText;
     const animationsText = document.createElement('span');
 
     const btns: ButtonMenuItemOptionsVerifiable[] = [{
@@ -1520,7 +1542,7 @@ export class AppSidebarLeft extends SidebarSlider {
     destroyable = true,
     doNotAppend?: boolean
   ) {
-    const ctorsToOpenInPopup = [AppSettingsTab, AppEditFolderTab, AppChatFoldersTab]
+    const ctorsToOpenInPopup = [AppSettingsTab, AppEditFolderTab, AppChatFoldersTab];
     if(this.isCollapsed() && !mediaSizes.isLessThanFloatingLeftSidebar && ctorsToOpenInPopup.includes(ctor as any)) {
       const popup = new SettingsSliderPopup(this.managers);
       popup.show();
