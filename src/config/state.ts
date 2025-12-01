@@ -118,7 +118,9 @@ export type StateSettings = {
       dontSendOnline: boolean,
       dontSendTyping: boolean,
       goOfflineAutomatically: boolean,
-      expanded?: boolean
+      expanded?: boolean,
+      scheduleMessages?: boolean,
+      sendWithoutSound?: boolean
     },
     chats: {
       showSecondsOnMessages: boolean,
@@ -422,7 +424,9 @@ export const SETTINGS_INIT: StateSettings = {
       dontSendOnline: false,
       dontSendTyping: false,
       goOfflineAutomatically: false,
-      expanded: true
+      expanded: true,
+      scheduleMessages: false,
+      sendWithoutSound: false
     },
     chats: {
       showSecondsOnMessages: false,

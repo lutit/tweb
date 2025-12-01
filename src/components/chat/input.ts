@@ -143,6 +143,7 @@ import SolidJSHotReloadGuardProvider from '../../lib/solidjs/hotReloadGuardProvi
 import {makeMessageMediaInputForSuggestedPost} from '../../lib/appManagers/utils/messages/makeMessageMediaInput';
 import showFrozenPopup from '../popups/frozen';
 import ensureRecorderLoaded from '../../lib/loadRecorder';
+import {isGhostScheduleMessagesEnabled, isGhostSendWithoutSoundEnabled} from '../../lib/ghostMode';
 
 // console.log('Recorder', Recorder);
 
@@ -953,6 +954,7 @@ export default class ChatInput {
           return;
         }
 
+        this.applyGhostModeDefaults(true);
         const sendingParams = this.chat.getMessageSendingParams();
 
         const preparedPaymentResult = await this.paidMessageInterceptor.prepareStarsForPayment(1);
@@ -3784,6 +3786,22 @@ export default class ChatInput {
     this.onMessageSent2?.();
   }
 
+  private applyGhostModeDefaults(isMedia: boolean) {
+    const ghostMode = rootScope.settings.client?.ghostMode;
+    if(!ghostMode) {
+      return;
+    }
+
+    if(!this.scheduleDate && isGhostScheduleMessagesEnabled()) {
+      const delay = isMedia ? 20 : 12;
+      this.scheduleDate = tsNow(true) + delay;
+    }
+
+    if(!this.sendSilent && isGhostSendWithoutSoundEnabled()) {
+      this.sendSilent = true;
+    }
+  }
+
   public async sendMessage(force = false) {
     const {editMsgId, chat} = this;
     if(chat.type === ChatType.Scheduled && !force && !editMsgId) {
@@ -3793,6 +3811,7 @@ export default class ChatInput {
 
     const {peerId} = chat;
     const {noWebPage} = this;
+    this.applyGhostModeDefaults(!!this.suggestedPost?.hasMedia);
     const sendingParams = this.chat.getMessageSendingParams();
 
     const {value, entities} = getRichValueWithCaret(this.messageInputField.input, true, false);
@@ -3952,6 +3971,7 @@ export default class ChatInput {
       return false;
     }
 
+    this.applyGhostModeDefaults(true);
     const sendingParams = this.chat.getMessageSendingParams();
 
     const preparedPaymentResult = await this.paidMessageInterceptor.prepareStarsForPayment(1);

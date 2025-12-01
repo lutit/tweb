@@ -13,6 +13,10 @@
   "ClientSettings.GhostMode.DontSendOnline": "Don't Send Online",
   "ClientSettings.GhostMode.DontSendTyping": "Don't Send Typing",
   "ClientSettings.GhostMode.GoOfflineAutomatically": "Go Offline Automatically",
+  "ClientSettings.GhostMode.ScheduleMessages": "Schedule Messages",
+  "ClientSettings.GhostMode.ScheduleMessages.Description": "Automatically delays outgoing messages by several seconds (longer for media) so you stay hidden. Avoid using on unstable networks.",
+  "ClientSettings.GhostMode.SendWithoutSound": "Send without Sound",
+  "ClientSettings.GhostMode.SendWithoutSound.Description": "Sends outgoing messages without sound by default.",
 
   "ClientSettings.Chats": "Chats",
   "ClientSettings.Chats.ShowSecondsOnMessages": "Show seconds on messages",

@@ -27,3 +27,11 @@ export function isGhostDontSendTypingEnabled(): boolean {
 export function isGhostGoOfflineAutomaticallyEnabled(): boolean {
   return !!getGhostSettings()?.goOfflineAutomatically;
 }
+
+export function isGhostScheduleMessagesEnabled(): boolean {
+  return !!getGhostSettings()?.scheduleMessages;
+}
+
+export function isGhostSendWithoutSoundEnabled(): boolean {
+  return !!getGhostSettings()?.sendWithoutSound;
+}

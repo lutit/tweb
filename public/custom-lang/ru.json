@@ -13,6 +13,10 @@
   "ClientSettings.GhostMode.DontSendOnline": "Не отправлять онлайн-статус",
   "ClientSettings.GhostMode.DontSendTyping": "Не отправлять набор текста",
   "ClientSettings.GhostMode.GoOfflineAutomatically": "Автоматически уходить офлайн",
+  "ClientSettings.GhostMode.ScheduleMessages": "Отложенная отправка",
+  "ClientSettings.GhostMode.ScheduleMessages.Description": "Автоматически откладывает исходящие сообщения на несколько секунд (дольше для медиа), чтобы вы оставались незаметны. Не рекомендуется в нестабильных сетях.",
+  "ClientSettings.GhostMode.SendWithoutSound": "Отправлять без звука",
+  "ClientSettings.GhostMode.SendWithoutSound.Description": "По умолчанию отправляет сообщения без звука.",
 
   "ClientSettings.Chats": "Чаты",
   "ClientSettings.Chats.ShowSecondsOnMessages": "Показывать секунды у сообщений",

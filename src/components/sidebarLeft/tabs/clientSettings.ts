@@ -152,6 +152,32 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       makeGhostOption('dontSendTyping', 'ClientSettings.GhostMode.DontSendTyping');
       makeGhostOption('goOfflineAutomatically', 'ClientSettings.GhostMode.GoOfflineAutomatically');
 
+      const scheduleMessagesRow = new Row({
+        titleLangKey: 'ClientSettings.GhostMode.ScheduleMessages',
+        subtitleLangKey: 'ClientSettings.GhostMode.ScheduleMessages.Description',
+        checkboxField: new CheckboxField({
+          name: 'client-ghost-mode-schedule-messages',
+          stateKey: joinDeepPath('settings', 'client', 'ghostMode', 'scheduleMessages'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      const sendWithoutSoundRow = new Row({
+        titleLangKey: 'ClientSettings.GhostMode.SendWithoutSound',
+        subtitleLangKey: 'ClientSettings.GhostMode.SendWithoutSound.Description',
+        checkboxField: new CheckboxField({
+          name: 'client-ghost-mode-send-without-sound',
+          stateKey: joinDeepPath('settings', 'client', 'ghostMode', 'sendWithoutSound'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(scheduleMessagesRow.container, sendWithoutSoundRow.container);
+
       accordion.style.setProperty('--max-height', (ghostOptionCheckboxes.length * 48) + 'px');
       setAccordionExpanded(rootScope.settings.client?.ghostMode?.expanded !== false);
 
