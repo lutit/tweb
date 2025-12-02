@@ -57,6 +57,12 @@
   "ClientSettings.ContextMenu.Details": "Подробности",
   "ClientSettings.ContextMenu.RepeatMessage": "Повтор сообщения",
 
+  "ClientSettings.Categories": "Категории",
+  "ClientSettings.Category.Privacy": "Приватность и режим призрака",
+  "ClientSettings.Category.Chats": "Чаты и интерфейс",
+  "ClientSettings.Category.Profile": "Профиль и ID",
+  "ClientSettings.Category.Premium": "Премиум и остальное",
+
   "ClientSettings.Experimental": "Экспериментальные",
 
   "ClientSettings.Spoof": "Отпечаток сессии",

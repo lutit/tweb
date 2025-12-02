@@ -57,6 +57,12 @@
   "ClientSettings.ContextMenu.Details": "Details",
   "ClientSettings.ContextMenu.RepeatMessage": "Repeat Message",
 
+  "ClientSettings.Categories": "Categories",
+  "ClientSettings.Category.Privacy": "Privacy & Ghost Mode",
+  "ClientSettings.Category.Chats": "Chats & Interface",
+  "ClientSettings.Category.Profile": "Profile & ID",
+  "ClientSettings.Category.Premium": "Premium & Extras",
+
   "ClientSettings.Experimental": "Experimental",
 
   "ClientSettings.Spoof": "Session fingerprint",
