@@ -1,9 +1,3 @@
-/*
- * https://github.com/morethanwords/tweb
- * Copyright (C) 2019-2021 Eduard Kuzmenko
- * https://github.com/morethanwords/tweb/blob/master/LICENSE
- */
-
 import {SliderSuperTab} from '../../slider';
 import rootScope from '../../../lib/rootScope';
 import SettingSection from '../../settingSection';
@@ -11,7 +5,6 @@ import CheckboxField from '../../checkboxField';
 import Row, {CreateRowFromCheckboxField} from '../../row';
 import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
 import I18n from '../../../lib/langPack';
-import RadioField from '../../radioField';
 import {setAppSettings} from '../../../stores/appSettings';
 import Icon from '../../icon';
 

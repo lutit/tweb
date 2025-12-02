@@ -10,6 +10,7 @@ import AppClientSettingsPrivacyTab from './clientSettingsPrivacy';
 import AppClientSettingsChatsTab from './clientSettingsChats';
 import AppClientSettingsProfileTab from './clientSettingsProfile';
 import AppClientSettingsPremiumTab from './clientSettingsPremium';
+import type {LangPackKey} from '../../../lib/langPack';
 
 export default class AppClientSettingsTab extends SliderSuperTabEventable {
   public init() {
@@ -25,7 +26,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
 
     const categoriesContainer = section('ClientSettings.Categories');
 
-    const categories: {icon: Icon, titleLangKey: Parameters<typeof Row>[0]['titleLangKey'], ctor: any}[] = [
+    const categories: {icon: Icon, titleLangKey: LangPackKey, ctor: any}[] = [
       {icon: 'lock', titleLangKey: 'ClientSettings.Category.Privacy', ctor: AppClientSettingsPrivacyTab},
       {icon: 'dialogs', titleLangKey: 'ClientSettings.Category.Chats', ctor: AppClientSettingsChatsTab},
       {icon: 'user', titleLangKey: 'ClientSettings.Category.Profile', ctor: AppClientSettingsProfileTab},

@@ -5,7 +5,7 @@
  */
 
 import type {SliderSuperTab} from './slider';
-import type {SliderSuperTabEventable, SliderSuperTabEventableConstructable} from './sliderTab';
+import type {SliderSuperTabConstructable, SliderSuperTabEventable} from './sliderTab';
 import CheckboxField, {CheckboxFieldOptions} from './checkboxField';
 import RadioField from './radioField';
 import ripple from './ripple';
@@ -38,7 +38,7 @@ type ConstructorP<T> = T extends {
   new (...args: any[]): infer U;
 } ? U : never;
 
-export default class Row<T extends SliderSuperTabEventableConstructable = any> {
+export default class Row<T extends SliderSuperTabConstructable = any> {
   public container: HTMLElement;
   public titleRow: HTMLElement;
   public titleRight: HTMLElement;
