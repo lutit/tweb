@@ -29,7 +29,7 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       {icon: 'lock', titleLangKey: 'ClientSettings.Category.Privacy', ctor: AppClientSettingsPrivacyTab},
       {icon: 'dialogs', titleLangKey: 'ClientSettings.Category.Chats', ctor: AppClientSettingsChatsTab},
       {icon: 'user', titleLangKey: 'ClientSettings.Category.Profile', ctor: AppClientSettingsProfileTab},
-      {icon: 'star', titleLangKey: 'ClientSettings.Category.Premium', ctor: AppClientSettingsPremiumTab}
+      {icon: 'star_n', titleLangKey: 'ClientSettings.Category.Premium', ctor: AppClientSettingsPremiumTab}
     ];
 
     categories.forEach(({icon, titleLangKey, ctor}) => {
