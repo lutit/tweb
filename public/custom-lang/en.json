@@ -80,5 +80,7 @@
   "StickerSet.Details.ShortName": "Sticker set username",
   "StickerSet.Details.Title": "Sticker set title",
   "StickerSet.Details.Count": "Stickers in set",
-  "StickerSet.Details.Flags": "Flags"
+  "StickerSet.Details.Flags": "Flags",
+
+  "StickerSet.Toast.PreparingArchive": "Preparing sticker pack archive…"
 }

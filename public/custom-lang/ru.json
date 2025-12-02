@@ -80,5 +80,7 @@
   "StickerSet.Details.ShortName": "Юзернейм набора",
   "StickerSet.Details.Title": "Название набора",
   "StickerSet.Details.Count": "Стикеров в наборе",
-  "StickerSet.Details.Flags": "Флаги"
+  "StickerSet.Details.Flags": "Флаги",
+
+  "StickerSet.Toast.PreparingArchive": "Готовим архив набора стикеров…"
 }

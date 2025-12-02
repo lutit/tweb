@@ -3378,6 +3378,7 @@ const lang = {
   'Stickers.Recent': 'Recent',
   // "Stickers.Favorite": "Favorite",
   'StickerSet.DontExist': 'Sorry, this sticker set doesn\'t seem to exist.',
+  'StickerSet.Toast.PreparingArchive': 'Preparing sticker pack archive…',
   'StickerSet.Details.Id': 'Sticker set ID',
   'StickerSet.Details.AccessHash': 'Access hash',
   'StickerSet.Details.ShortName': 'Sticker set username',

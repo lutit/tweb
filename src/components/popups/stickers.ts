@@ -32,12 +32,13 @@ import ButtonMenuToggle from '../buttonMenuToggle';
 import {copyTextToClipboard} from '../../helpers/clipboard';
 import wrapRichText from '../../lib/richTextProcessor/wrapRichText';
 import {onMediaCaptionClick} from '../appMediaViewer';
-import DEBUG from '../../config/debug';
 import ButtonMenu, {ButtonMenuItemOptionsVerifiable} from '../buttonMenu';
 import appDownloadManager from '../../lib/appManagers/appDownloadManager';
 import pause from '../../helpers/schedulers/pause';
 import toArray from '../../helpers/array/toArray';
 import createSubmenuTrigger from '../createSubmenuTrigger';
+import {crc32} from '../../vendor/simple-yenc';
+import {IS_FIREFOX} from '../../environment/userAgent';
 
 const ANIMATION_GROUP: AnimationItemGroup = 'STICKERS-POPUP';
 
@@ -364,20 +365,102 @@ export default class PopupStickers extends PopupElement {
       });
     })];
 
-    if(DEBUG) {
-      buttons.push({
-        icon: 'download',
-        text: 'MediaViewer.Context.Download',
-        onClick: async() => {
+    buttons.push({
+      icon: 'download',
+      text: 'MediaViewer.Context.Download',
+      onClick: async() => {
+        toastNew({
+          langPackKey: 'StickerSet.Toast.PreparingArchive',
+          durationMs: 8000
+        });
+        await pause(0);
+
+        console.log('[PopupStickers] download: start');
+
+        const entries: {name: string, data: Uint8Array}[] = [];
+
+        try {
           for(const set of sets) {
+            const baseName = set.set.short_name || set.set.title || String(set.set.id);
+            let index = 0;
+
             for(const doc of set.documents) {
-              appDownloadManager.downloadToDisc({media: doc as Document.document});
-              await pause(100);
+              const blob = await appDownloadManager.downloadMedia({
+                media: doc as Document.document
+              }) as unknown as Blob;
+
+              if(!blob) {
+                console.warn('[PopupStickers] download: blob is empty, skipping document', doc);
+                continue;
+              }
+
+              const buffer = await blob.arrayBuffer();
+              const data = new Uint8Array(buffer);
+
+              const mime = (doc as Document.document).mime_type || 'application/octet-stream';
+              let ext = 'bin';
+              if(mime === 'image/webp') ext = 'webp';
+              else if(mime === 'image/jpeg') ext = 'jpg';
+              else if(mime === 'image/png') ext = 'png';
+              else if(mime === 'video/mp4') ext = 'mp4';
+              else if(mime === 'video/webm') ext = 'webm';
+              else if(mime === 'application/x-tgsticker') ext = 'tgs';
+
+              const name = `${baseName}_${(++index).toString().padStart(3, '0')}.${ext}`;
+              entries.push({name, data});
             }
           }
+        } catch(err) {
+          console.error('[PopupStickers] download: error while collecting entries', err);
+          return;
         }
-      });
-    }
+
+        if(!entries.length) {
+          console.warn('[PopupStickers] download: no entries to archive');
+          return;
+        }
+
+        console.log('[PopupStickers] download: creating zip from entries', entries.length);
+        let zipBlob: Blob;
+        try {
+          zipBlob = this.createZipFromEntries(entries);
+        } catch(err) {
+          console.error('[PopupStickers] download: error while creating zip', err);
+          return;
+        }
+
+        console.log('[PopupStickers] download: zip created', {size: zipBlob.size});
+
+        const firstSet = sets[0];
+        const zipBaseName =
+          (firstSet && (firstSet.set.short_name || firstSet.set.title)) ||
+          (this.isEmojis ? 'emoji' : 'stickers');
+        const zipName = `${zipBaseName}.zip`;
+
+        try {
+          const url = URL.createObjectURL(zipBlob);
+          console.log('[PopupStickers] download: object URL created', url);
+
+          if(IS_FIREFOX) {
+            console.log('[PopupStickers] download: using Firefox fallback via window.open');
+            window.open(url, '_blank');
+          } else {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = zipName;
+            document.body.append(a);
+            a.click();
+            console.log('[PopupStickers] download: click dispatched');
+            a.remove();
+          }
+
+          URL.revokeObjectURL(url);
+          console.log('[PopupStickers] download: URL revoked');
+        } catch(err) {
+          console.error('[PopupStickers] download: error while triggering download', err);
+        }
+      }
+    });
 
     const btnMenu = ButtonMenuToggle({
       listenerSetter: this.listenerSetter,
@@ -419,5 +502,97 @@ export default class PopupStickers extends PopupElement {
 
     this.button.className = isAdd ? 'btn-primary btn-color-primary' : 'btn-primary btn-primary-transparent danger';
     replaceContent(this.button, i18n(isAdd ? 'AddStickersCount' : 'RemoveStickersCount', [buttonAppend]));
+  }
+
+  private createZipFromEntries(entries: {name: string, data: Uint8Array}[]): Blob {
+    const encoder = new TextEncoder();
+
+    const localParts: Uint8Array[] = [];
+    const centralParts: Uint8Array[] = [];
+
+    let localOffset = 0;
+
+    for(const entry of entries) {
+      const nameBytes = encoder.encode(entry.name);
+      const data = entry.data;
+      const crc = crc32(data) >>> 0;
+      const compressedSize = data.length;
+      const uncompressedSize = data.length;
+      const modTime = 0;
+      const modDate = 0;
+
+      const localHeaderView = new DataView(new ArrayBuffer(30));
+      let o = 0;
+      localHeaderView.setUint32(o, 0x04034b50, true); o += 4; // signature
+      localHeaderView.setUint16(o, 20, true); o += 2; // version needed
+      localHeaderView.setUint16(o, 0, true); o += 2; // flags
+      localHeaderView.setUint16(o, 0, true); o += 2; // compression method (store)
+      localHeaderView.setUint16(o, modTime, true); o += 2;
+      localHeaderView.setUint16(o, modDate, true); o += 2;
+      localHeaderView.setUint32(o, crc, true); o += 4;
+      localHeaderView.setUint32(o, compressedSize, true); o += 4;
+      localHeaderView.setUint32(o, uncompressedSize, true); o += 4;
+      localHeaderView.setUint16(o, nameBytes.length, true); o += 2;
+      localHeaderView.setUint16(o, 0, true); o += 2; // extra length
+
+      const localHeader = new Uint8Array(localHeaderView.buffer);
+      localParts.push(localHeader, nameBytes, data);
+
+      const centralHeaderView = new DataView(new ArrayBuffer(46));
+      o = 0;
+      centralHeaderView.setUint32(o, 0x02014b50, true); o += 4; // signature
+      centralHeaderView.setUint16(o, 20, true); o += 2; // version made by
+      centralHeaderView.setUint16(o, 20, true); o += 2; // version needed
+      centralHeaderView.setUint16(o, 0, true); o += 2; // flags
+      centralHeaderView.setUint16(o, 0, true); o += 2; // compression method
+      centralHeaderView.setUint16(o, modTime, true); o += 2;
+      centralHeaderView.setUint16(o, modDate, true); o += 2;
+      centralHeaderView.setUint32(o, crc, true); o += 4;
+      centralHeaderView.setUint32(o, compressedSize, true); o += 4;
+      centralHeaderView.setUint32(o, uncompressedSize, true); o += 4;
+      centralHeaderView.setUint16(o, nameBytes.length, true); o += 2;
+      centralHeaderView.setUint16(o, 0, true); o += 2; // extra
+      centralHeaderView.setUint16(o, 0, true); o += 2; // comment
+      centralHeaderView.setUint16(o, 0, true); o += 2; // disk number
+      centralHeaderView.setUint16(o, 0, true); o += 2; // internal attrs
+      centralHeaderView.setUint32(o, 0, true); o += 4; // external attrs
+      centralHeaderView.setUint32(o, localOffset, true); o += 4; // local header offset
+
+      const centralHeader = new Uint8Array(centralHeaderView.buffer);
+      centralParts.push(centralHeader, nameBytes);
+
+      localOffset += localHeader.length + nameBytes.length + data.length;
+    }
+
+    const localSize = localParts.reduce((sum, part) => sum + part.length, 0);
+    const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+    const endRecordSize = 22;
+    const totalSize = localSize + centralSize + endRecordSize;
+
+    const out = new Uint8Array(totalSize);
+    let offset = 0;
+
+    for(const part of localParts) {
+      out.set(part, offset);
+      offset += part.length;
+    }
+
+    for(const part of centralParts) {
+      out.set(part, offset);
+      offset += part.length;
+    }
+
+    const endView = new DataView(out.buffer, offset, endRecordSize);
+    let o2 = 0;
+    endView.setUint32(o2, 0x06054b50, true); o2 += 4; // signature
+    endView.setUint16(o2, 0, true); o2 += 2; // disk number
+    endView.setUint16(o2, 0, true); o2 += 2; // start disk
+    endView.setUint16(o2, entries.length, true); o2 += 2; // entries on this disk
+    endView.setUint16(o2, entries.length, true); o2 += 2; // total entries
+    endView.setUint32(o2, centralSize, true); o2 += 4; // central dir size
+    endView.setUint32(o2, localSize, true); o2 += 4; // central dir offset
+    endView.setUint16(o2, 0, true); // comment length
+
+    return new Blob([out], {type: 'application/zip'});
   }
 }

@@ -34,7 +34,7 @@ export function hideToast() {
   }, 200);
 }
 
-export function toast(content: string | Node, onClose?: () => void) {
+export function toast(content: string | Node, onClose?: () => void, durationMs = 3000) {
   x.close();
 
   replaceContent(toastEl, content);
@@ -53,7 +53,7 @@ export function toast(content: string | Node, onClose?: () => void) {
   timeout && clearTimeout(+timeout);
   x.open(toastEl);
 
-  timeout = window.setTimeout(hideToast, 3000);
+  timeout = window.setTimeout(hideToast, durationMs);
 
   if(onClose) {
     x.addEventListener('toggle', onClose, {once: true});
@@ -63,7 +63,8 @@ export function toast(content: string | Node, onClose?: () => void) {
 export function toastNew(options: Partial<{
   langPackKey: LangPackKey,
   langPackArguments: FormatterArguments,
-  onClose: () => void
+  onClose: () => void,
+  durationMs: number
 }>) {
-  toast(i18n(options.langPackKey, options.langPackArguments), options.onClose);
+  toast(i18n(options.langPackKey, options.langPackArguments), options.onClose, options.durationMs);
 }
