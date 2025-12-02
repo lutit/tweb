@@ -145,6 +145,14 @@ export type StateSettings = {
     profile?: {
       idFormat: 'hide' | 'botApi' | 'telegramApi',
       hidePhoneNumberText: boolean
+    },
+    sessionSpoof?: {
+      enabled: boolean,
+      deviceModel?: string,
+      systemVersion?: string,
+      appVersion?: string,
+      systemLangCode?: string,
+      langCode?: string
     }
   }
 };
@@ -451,6 +459,9 @@ export const SETTINGS_INIT: StateSettings = {
     profile: {
       idFormat: 'botApi',
       hidePhoneNumberText: true
+    },
+    sessionSpoof: {
+      enabled: false
     }
   }
 };

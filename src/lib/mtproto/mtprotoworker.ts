@@ -533,6 +533,10 @@ class ApiManagerProxy extends MTProtoMessagePort {
     rootScope.addEventListener('settings_updated', ({key, settings}) => {
       const path = splitDeepPath(key).slice(1);
       setAppSettingsSilent(...path, getDeepProperty(settings, path));
+
+      if(key.indexOf('settings.client.sessionSpoof') === 0) {
+        rootScope.managers.all.networkerFactory.unsetConnectionInited();
+      }
     });
 
     rootScope.addEventListener('toggle_using_passcode', (value) => {

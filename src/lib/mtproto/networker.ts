@@ -35,6 +35,7 @@ import sortLongsArray from '../../helpers/long/sortLongsArray';
 import deferredPromise, {CancellablePromise} from '../../helpers/cancellablePromise';
 import pause from '../../helpers/schedulers/pause';
 import {getEnvironment} from '../../environment/utils';
+import rootScope from '../rootScope';
 import {TimeManager} from './timeManager';
 import indexOfAndSplice from '../../helpers/array/indexOfAndSplice';
 import {ActiveAccountNumber} from '../accounts/types';
@@ -379,17 +380,44 @@ export default class MTPNetworker {
     if(!this.connectionInited) { // this will call once for each new session
       log('adding invokeWithLayer');
 
+      const clientSettings = rootScope.settings.client;
+      const spoof = clientSettings?.sessionSpoof;
+      const useSpoof = !!spoof?.enabled;
+
+      const device_model =
+        (useSpoof && spoof.deviceModel) ||
+        getEnvironment().USER_AGENT ||
+        'Unknown UserAgent';
+
+      const system_version =
+        (useSpoof && spoof.systemVersion) ||
+        navigator.platform ||
+        'Unknown Platform';
+
+      const app_version =
+        (useSpoof && spoof.appVersion) ||
+        App.version + (App.isMainDomain ? ' ' + App.suffix : '');
+
+      const system_lang_code =
+        (useSpoof && spoof.systemLangCode) ||
+        navigator.language ||
+        'en';
+
+      const lang_code =
+        (useSpoof && spoof.langCode) ||
+        this.networkerFactory.language;
+
       serializer.storeMethod('invokeWithLayer', {
         layer: Schema.layer,
         query: (serializer: TLSerialization) => {
           serializer.storeMethod('initConnection', {
             api_id: App.id,
-            device_model: getEnvironment().USER_AGENT || 'Unknown UserAgent',
-            system_version: navigator.platform || 'Unknown Platform',
-            app_version: App.version + (App.isMainDomain ? ' ' + App.suffix : ''),
-            system_lang_code: navigator.language || 'en',
+            device_model,
+            system_version,
+            app_version,
+            system_lang_code,
             lang_pack: App.langPack,
-            lang_code: this.networkerFactory.language,
+            lang_code,
             query: (serializer: TLSerialization) => {
               this.storeApiCall(serializer, method, params, options, log);
             }

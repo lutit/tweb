@@ -11,6 +11,7 @@ import {replaceButtonIcon} from '../../button';
 import Icon from '../../icon';
 import safeWindowOpen from '../../../helpers/dom/safeWindowOpen';
 import {setAppSettings} from '../../../stores/appSettings';
+import AppClientSessionSpoofTab from './clientSessionSpoof';
 
 export default class AppClientSettingsTab extends SliderSuperTabEventable {
   public init() {
@@ -346,6 +347,23 @@ export default class AppClientSettingsTab extends SliderSuperTabEventable {
       });
 
       container.append(forceCopyRow.container);
+    }
+
+    {
+      const container = section('ClientSettings.Spoof');
+
+      const row = new Row({
+        icon: 'settings',
+        titleLangKey: 'ClientSettings.Spoof',
+        subtitleLangKey: 'ClientSettings.Spoof.SectionTitle',
+        navigationTab: {
+          constructor: AppClientSessionSpoofTab,
+          slider: this.slider
+        },
+        listenerSetter: this.listenerSetter
+      });
+
+      container.append(row.container);
     }
 
     {
