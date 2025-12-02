@@ -188,20 +188,26 @@ export default class AppClientSessionSpoofTab extends SliderSuperTab {
         return;
       }
 
-      try {
-        await confirmationPopup({
-          descriptionLangKey: 'ClientSettings.Spoof.Confirm.Description',
-          button: {
-            langKey: 'ClientSettings.Spoof.Confirm.Button',
-            isDanger: true
-          }
-        });
-      } catch {
-        return;
+      const prevEnabled = !!spoof.enabled;
+      const nextEnabled = !!draft.enabled;
+      const needReload = prevEnabled || nextEnabled;
+
+      if(needReload) {
+        try {
+          await confirmationPopup({
+            descriptionLangKey: 'ClientSettings.Spoof.Confirm.Description',
+            button: {
+              langKey: 'ClientSettings.Spoof.Confirm.Button',
+              isDanger: true
+            }
+          });
+        } catch {
+          return;
+        }
       }
 
       const value = {
-        enabled: !!draft.enabled,
+        enabled: nextEnabled,
         deviceModel: draft.deviceModel || undefined,
         systemVersion: draft.systemVersion || undefined,
         appVersion: draft.appVersion || undefined,
@@ -210,7 +216,26 @@ export default class AppClientSessionSpoofTab extends SliderSuperTab {
       };
 
       await setAppSettings('client', 'sessionSpoof', value);
-      location.reload();
+
+      if(needReload) {
+        location.reload();
+      } else {
+        spoof.enabled = value.enabled;
+        spoof.deviceModel = value.deviceModel;
+        spoof.systemVersion = value.systemVersion;
+        spoof.appVersion = value.appVersion;
+        spoof.systemLangCode = value.systemLangCode;
+        spoof.langCode = value.langCode;
+
+        draft.enabled = value.enabled;
+        draft.deviceModel = value.deviceModel;
+        draft.systemVersion = value.systemVersion;
+        draft.appVersion = value.appVersion;
+        draft.systemLangCode = value.systemLangCode;
+        draft.langCode = value.langCode;
+
+        updateFabVisibility();
+      }
     }, {listenerSetter: this.listenerSetter});
 
     updateFabVisibility();

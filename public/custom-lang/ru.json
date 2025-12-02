@@ -68,6 +68,7 @@
   "ClientSettings.Spoof.SystemLangCode": "Язык системы (system_lang_code)",
   "ClientSettings.Spoof.LangCode": "Код языка (lang_code)",
   "ClientSettings.Spoof.Confirm.Description": "Применить подменённый отпечаток сессии?\n\nЭто переинициализирует MTProto-соединение для этой вкладки. Страница будет перезагружена, и новые соединения будут использовать подменённые значения.",
+  "ClientSettings.Spoof.Confirm.Description.NoReload": "Применить подменённый отпечаток сессии?\n\nЭто переинициализирует MTProto-соединение для этой вкладки. Перезагрузка страницы не требуется — новые соединения автоматически начнут использовать подменённые значения.",
   "ClientSettings.Spoof.Confirm.Button": "Применить и перезагрузить",
 
   "ClientSettings.Other": "Другое",

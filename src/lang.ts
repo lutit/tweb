@@ -3923,6 +3923,7 @@ const lang = {
   'ClientSettings.Spoof.SystemLangCode': 'System language code (system_lang_code)',
   'ClientSettings.Spoof.LangCode': 'Language code (lang_code)',
   'ClientSettings.Spoof.Confirm.Description': 'Apply spoofed session fingerprint?\n\nThis will re-initialize the MTProto connection for this tab. The page will reload, and new connections will use the spoofed values.',
+  'ClientSettings.Spoof.Confirm.Description.NoReload': 'Apply spoofed session fingerprint?\n\nThis will re-initialize the MTProto connection for this tab. Page reload is not required – new connections will start using the spoofed values automatically.',
   'ClientSettings.Spoof.Confirm.Button': 'Apply and reload',
 
   'ClientSettings.Other': 'Other',
