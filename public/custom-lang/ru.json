@@ -57,6 +57,8 @@
   "ClientSettings.ContextMenu.Details": "Подробности",
   "ClientSettings.ContextMenu.RepeatMessage": "Повтор сообщения",
 
+  "ClientSettings.Experimental": "Экспериментальные",
+
   "ClientSettings.Spoof": "Отпечаток сессии",
   "ClientSettings.Spoof.MenuTitle": "Отпечаток сессии",
   "ClientSettings.Spoof.SectionTitle": "Как сервер видит эту вкладку",
@@ -71,7 +73,7 @@
   "ClientSettings.Spoof.Confirm.Description.NoReload": "Применить подменённый отпечаток сессии?\n\nЭто переинициализирует MTProto-соединение для этой вкладки. Перезагрузка страницы не требуется — новые соединения автоматически начнут использовать подменённые значения.",
   "ClientSettings.Spoof.Confirm.Button": "Применить и перезагрузить",
 
-  "ClientSettings.Other": "Другое",
+  "ClientSettings.Other": "Ссылки",
   "ClientSettings.Other.OpenTgc.Title": "Канал клиента Telegram",
   "ClientSettings.Other.OpenTgc.Subtitle": "Открыть канал в Telegram",
   "ClientSettings.Other.OpenTgc.Button": "Открыть канал",

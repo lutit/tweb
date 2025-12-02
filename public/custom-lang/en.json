@@ -57,6 +57,8 @@
   "ClientSettings.ContextMenu.Details": "Details",
   "ClientSettings.ContextMenu.RepeatMessage": "Repeat Message",
 
+  "ClientSettings.Experimental": "Experimental",
+
   "ClientSettings.Spoof": "Session fingerprint",
   "ClientSettings.Spoof.MenuTitle": "Session fingerprint",
   "ClientSettings.Spoof.SectionTitle": "How the server sees this tab",
@@ -71,7 +73,7 @@
   "ClientSettings.Spoof.Confirm.Description.NoReload": "Apply spoofed session fingerprint?\n\nThis will re-initialize the MTProto connection for this tab. Page reload is not required – new connections will start using the spoofed values automatically.",
   "ClientSettings.Spoof.Confirm.Button": "Apply and reload",
 
-  "ClientSettings.Other": "Other",
+  "ClientSettings.Other": "Links",
   "ClientSettings.Other.OpenTgc.Title": "Telegram client channel",
   "ClientSettings.Other.OpenTgc.Subtitle": "Open the channel in Telegram",
   "ClientSettings.Other.OpenTgc.Button": "Open channel",

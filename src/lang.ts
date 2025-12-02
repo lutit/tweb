@@ -3861,6 +3861,12 @@ const lang = {
   'TonGiftSubtitle': 'Use TON to buy gifts and suggest posts to channels.',
 
   'ClientSettings.MenuTitle': 'Client Settings',
+  'ClientSettings.Categories': 'Categories',
+  'ClientSettings.Category.Privacy': 'Privacy & Ghost Mode',
+  'ClientSettings.Category.Chats': 'Chats & Interface',
+  'ClientSettings.Category.Profile': 'Profile & ID',
+  'ClientSettings.Category.Premium': 'Premium & Extras',
+  'ClientSettings.Experimental': 'Experimental',
   'ClientSettings.GhostMode': 'Ghost Mode',
   'ClientSettings.GhostMode.Count': '%1$d/%2$d',
   'ClientSettings.GhostMode.DontReadMessages': 'Don\'t Read Messages',
@@ -3926,7 +3932,7 @@ const lang = {
   'ClientSettings.Spoof.Confirm.Description.NoReload': 'Apply spoofed session fingerprint?\n\nThis will re-initialize the MTProto connection for this tab. Page reload is not required – new connections will start using the spoofed values automatically.',
   'ClientSettings.Spoof.Confirm.Button': 'Apply and reload',
 
-  'ClientSettings.Other': 'Other',
+  'ClientSettings.Other': 'Links',
   'ClientSettings.Other.OpenTgc.Title': 'Telegram client channel',
   'ClientSettings.Other.OpenTgc.Subtitle': 'Open the channel in Telegram',
   'ClientSettings.Other.OpenTgc.Button': 'Open channel',
