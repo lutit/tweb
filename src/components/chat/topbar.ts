@@ -279,6 +279,9 @@ export default class ChatTopbar {
 
           this.appSidebarRight.toggleSidebar(!document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME));
         } else {
+          if(this.chat.type === ChatType.Virtual) {
+            return;
+          }
           this.appSidebarRight.toggleSidebar(true);
         }
       }
@@ -555,7 +558,10 @@ export default class ChatTopbar {
       onClick: () => {
         this.addContact();
       },
-      verify: async() => !this.chat.isBot && (this.chat.monoforumThreadId || this.peerId).isUser() && !(await this.managers.appPeersManager.isContact(this.chat.monoforumThreadId || this.peerId))
+      verify: async() => this.chat.type !== ChatType.Virtual &&
+        !this.chat.isBot &&
+        (this.chat.monoforumThreadId || this.peerId).isUser() &&
+        !(await this.managers.appPeersManager.isContact(this.chat.monoforumThreadId || this.peerId))
     }, {
       icon: 'forward',
       text: 'ShareContact',
@@ -598,7 +604,11 @@ export default class ChatTopbar {
           }
         });
       },
-      verify: async() => rootScope.myId !== this.peerId && this.peerId.isUser() && (await this.managers.appPeersManager.isContact(this.peerId)) && !!(await this.managers.appUsersManager.getUser(this.peerId.toUserId())).phone
+      verify: async() => this.chat.type !== ChatType.Virtual &&
+        rootScope.myId !== this.peerId &&
+        this.peerId.isUser() &&
+        (await this.managers.appPeersManager.isContact(this.peerId)) &&
+        !!(await this.managers.appUsersManager.getUser(this.peerId.toUserId())).phone
     }, {
       icon: 'gift',
       text: 'Chat.Menu.SendGift',

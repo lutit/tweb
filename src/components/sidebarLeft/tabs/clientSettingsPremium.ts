@@ -6,6 +6,7 @@ import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
 import rootScope from '../../../lib/rootScope';
 import {setAppSettings} from '../../../stores/appSettings';
 import Icon from '../../icon';
+import type {LangPackKey} from '../../../lib/langPack';
 
 export default class AppClientSettingsPremiumTab extends SliderSuperTab {
   public init() {
@@ -62,10 +63,11 @@ export default class AppClientSettingsPremiumTab extends SliderSuperTab {
 
       container.content.append(forceCopyRow.container);
 
-      const ayuCoreOptions = [
-        {label: 'ClientSettings.AyuMoments.SaveDeleted', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveDeleted'), name: 'client-ayu-save-deleted', prop: 'saveDeleted' as const},
-        {label: 'ClientSettings.AyuMoments.SaveEdited', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveEdited'), name: 'client-ayu-save-edited', prop: 'saveEdited' as const},
-        {label: 'ClientSettings.AyuMoments.IncludeBots', key: joinDeepPath('settings', 'client', 'ayuMoments', 'includeBots'), name: 'client-ayu-include-bots', prop: 'includeBots' as const}
+      type AyuCoreProp = 'saveDeleted' | 'saveEdited' | 'includeBots';
+      const ayuCoreOptions: Array<{label: LangPackKey, key: string, name: string, prop: AyuCoreProp}> = [
+        {label: 'ClientSettings.AyuMoments.SaveDeleted', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveDeleted'), name: 'client-ayu-save-deleted', prop: 'saveDeleted'},
+        {label: 'ClientSettings.AyuMoments.SaveEdited', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveEdited'), name: 'client-ayu-save-edited', prop: 'saveEdited'},
+        {label: 'ClientSettings.AyuMoments.IncludeBots', key: joinDeepPath('settings', 'client', 'ayuMoments', 'includeBots'), name: 'client-ayu-include-bots', prop: 'includeBots'}
       ];
 
       const coreCountSpan = document.createElement('span');
@@ -168,11 +170,11 @@ export default class AppClientSettingsPremiumTab extends SliderSuperTab {
 
       container.content.append(coreHeaderRow.container, accordion);
 
-      const additionalToggles = [
+      const additionalToggles: Array<{label: LangPackKey, key: string, name: string}> = [
         {label: 'ClientSettings.AyuMoments.SaveReactions', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveReactions'), name: 'client-ayu-save-reactions'},
         {label: 'ClientSettings.AyuMoments.KeepPrompt', key: joinDeepPath('settings', 'client', 'ayuMoments', 'keepLocallyPrompt'), name: 'client-ayu-keep-prompt'},
         {label: 'ClientSettings.AyuMoments.KeepDefaultOn', key: joinDeepPath('settings', 'client', 'ayuMoments', 'keepLocallyDefaultOn'), name: 'client-ayu-keep-default'}
-      ] as const;
+      ];
 
       additionalToggles.forEach(({label, key, name}) => {
         const row = new Row({

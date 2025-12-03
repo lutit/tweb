@@ -1033,6 +1033,19 @@ export default class ChatContextMenu {
       notDirect: () => true,
       localName: 'emojis'
     }];
+
+    if(this.chat.type === ChatType.Virtual) {
+      const allowedTexts = new Set(['Message.Context.Details']);
+      this.buttons = this.buttons.filter((button) => {
+        const text = button.text;
+        if(typeof text !== 'string') return false;
+        const lower = text.toLowerCase();
+        if(lower.includes('copy') || lower.includes('forward') || lower.includes('download')) {
+          return true;
+        }
+        return allowedTexts.has(text);
+      });
+    }
   }
 
   private createChecklistItemSubmenu = async({middleware}: CreateSubmenuArgs) => {

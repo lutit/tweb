@@ -420,18 +420,17 @@ class AppSelection extends EventListenerBase<{
     return Promise.all(selectedMessagesPromises);
   }
 
-  private getVirtualSelectedMessages() {
-    const messages: MyMessage[] = [];
+  protected async getVirtualSelectedMessages() {
+    const messagePromises: Promise<MyMessage | undefined>[] = [];
     this.selectedMids.forEach((mids, peerId) => {
       const sorted = Array.from(mids).sort((a, b) => a - b);
       sorted.forEach((mid) => {
-        const message = this.chat.getMessageByPeer(peerId, mid);
-        if(message) {
-          messages.push(message as MyMessage);
-        }
+        messagePromises.push(this.managers.appMessagesManager.getMessageByPeer(peerId, mid));
       });
     });
-    return messages;
+
+    const resolved = await Promise.all(messagePromises);
+    return resolved.filter((message): message is MyMessage => !!message);
   }
 
   public toggleSelection(toggleCheckboxes = true, forceSelection = false) {
@@ -719,7 +718,10 @@ export class SearchSelection extends AppSelection {
 
   protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean, cantSend: boolean, cantPin: boolean) => {
     const length = this.length();
-    replaceContent(this.selectionCountEl, i18n(this.isStories ? 'StoriesCount' : 'messages', [length]));
+    const counter = this.selectionCountEl;
+    if(counter) {
+      replaceContent(counter, i18n(this.isStories ? 'StoriesCount' : 'messages', [length]));
+    }
     this.selectionPinBtn.classList.toggle('hide', !this.isStories || cantPin);
     this.selectionGotoBtn.classList.toggle('hide', this.isStories || length !== 1);
     this.selectionForwardBtn.classList.toggle('hide', cantForward);
@@ -782,9 +784,10 @@ export class SearchSelection extends AppSelection {
         }, attachClickOptions);
 
         this.selectionForwardBtn = ButtonIcon(`forward ${BASE_CLASS}-forward`);
-        attachClickEvent(this.selectionForwardBtn, () => {
-          if(this.chat.type === ChatType.Virtual) {
-            const messages = this.getVirtualSelectedMessages();
+        attachClickEvent(this.selectionForwardBtn, async() => {
+          const isVirtual = !!this.searchSuper.searchContext?.virtualKey;
+          if(isVirtual) {
+            const messages = await this.getVirtualSelectedMessages();
             forwardVirtualMessagesHelper({
               managers: this.managers,
               messages,
@@ -1111,9 +1114,9 @@ export default class ChatSelection extends AppSelection {
         } else {
           this.selectionForwardBtn = Button('btn-primary btn-transparent text-bold selection-container-forward', {icon: 'forward'});
           this.selectionForwardBtn.append(i18n('Forward'));
-          attachClickEvent(this.selectionForwardBtn, () => {
+          attachClickEvent(this.selectionForwardBtn, async() => {
             if(this.chat.type === ChatType.Virtual) {
-              const messages = this.getVirtualSelectedMessages();
+              const messages = await this.getVirtualSelectedMessages();
               forwardVirtualMessagesHelper({
                 managers: this.managers,
                 messages,
@@ -1188,7 +1191,7 @@ export default class ChatSelection extends AppSelection {
     }
   };
 
-  protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean, cantSend: boolean) => {
+  protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean, cantSend: boolean, _cantPin?: boolean) => {
     replaceContent(this.selectionCountEl, i18n('messages', [this.length()]));
     this.selectionSendNowBtn?.toggleAttribute('disabled', cantSend);
     this.selectionForwardBtn?.toggleAttribute('disabled', cantForward);

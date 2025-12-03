@@ -7,7 +7,7 @@
 import type ChatTopbar from './topbar';
 import DivAndCaption from '../divAndCaption';
 import PinnedContainer from './pinnedContainer';
-import Chat from './chat';
+import Chat, {ChatType} from './chat';
 import cancelEvent from '../../helpers/dom/cancelEvent';
 import {attachClickEvent} from '../../helpers/dom/clickEvent';
 import {LangPackKey, i18n} from '../../lib/langPack';
@@ -135,7 +135,7 @@ export default class ChatActions extends PinnedContainer {
   }
 
   public set(peerId: PeerId, settings: PeerSettings) {
-    const supportedActions = settings?.pFlags ?
+    let supportedActions = settings?.pFlags ?
       this.actions.filter((action) => settings.pFlags[action.key]) :
       [];
     if(!supportedActions.length) {
