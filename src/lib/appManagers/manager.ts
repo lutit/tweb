@@ -59,6 +59,7 @@ import type {AppManagers} from './managers';
 import type AppGifsManager from './appGifsManager';
 import type AppGiftsManager from './appGiftsManager';
 import type {AppLangPackManager} from './appLangPackManager';
+import type AppAyuMomentsManager from './appAyuMomentsManager';
 import {logger, LogTypes} from '../logger';
 import {ActiveAccountNumber} from '../accounts/types';
 
@@ -120,6 +121,7 @@ export class AppManager {
   protected appGifsManager: AppGifsManager;
   protected appGiftsManager: AppGiftsManager;
   protected monoforumDialogsStorage: MonoforumDialogsStorage;
+  protected appAyuMomentsManager: AppAyuMomentsManager;
 
   protected name: string;
   public log: ReturnType<typeof logger>;

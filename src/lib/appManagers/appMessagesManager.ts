@@ -9363,6 +9363,11 @@ export class AppMessagesManager extends AppManager {
         continue;
       }
 
+      if(shouldClearContexts) {
+        const ttlReason = (message as Message.message).ttl_period ? 'ttl' : 'server_delete';
+        void this.appAyuMomentsManager?.handleMessageDeleted(message as Message.message | Message.messageService, ttlReason);
+      }
+
       this.handleReleasingMessage(message, storage);
 
       {
@@ -9457,6 +9462,8 @@ export class AppMessagesManager extends AppManager {
 
   private handleEditedMessage(oldMessage: Message, newMessage: Message, storage: MessagesStorage) {
     if(oldMessage._ === 'message') {
+      void this.appAyuMomentsManager?.handleMessageEdited(oldMessage as Message.message, newMessage as Message.message | Message.messageService);
+
       if((oldMessage.media as MessageMedia.messageMediaWebPage)?.webpage) {
         const messageKey = this.appWebPagesManager.getMessageKeyForPendingWebPage(oldMessage.peerId, oldMessage.mid, !!oldMessage.pFlags.is_scheduled);
         this.appWebPagesManager.deleteWebPageFromPending((oldMessage.media as MessageMedia.messageMediaWebPage).webpage, messageKey);

@@ -29,6 +29,7 @@ import EventListenerBase, {EventListenerListeners} from '../helpers/eventListene
 import {MOUNT_CLASS_TO} from '../config/debug';
 import MTProtoMessagePort from './mtproto/mtprotoMessagePort';
 import {ActiveAccountNumber} from './accounts/types';
+import type {AyuMomentsUpdatePayload} from './ayuMoments/types';
 
 export type BroadcastEvents = {
   'chat_full_update': ChatId,
@@ -203,6 +204,8 @@ export type BroadcastEvents = {
   'stars_balance': {balance: Long, fulfilledReservedStars?: number, ton: boolean},
 
   'file_speed_limited': {increaseTimes: number, isUpload: boolean},
+
+  'ayu_moments_update': AyuMomentsUpdatePayload,
 
   'config': Config,
   'app_config': MTAppConfig,

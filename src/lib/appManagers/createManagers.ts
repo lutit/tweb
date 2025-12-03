@@ -62,6 +62,7 @@ import {ActiveAccountNumber} from '../accounts/types';
 import {AppManager} from './manager';
 import AppGiftsManager from './appGiftsManager';
 import MonoforumDialogsStorage from '../storages/monoforumDialogs';
+import AppAyuMomentsManager from './appAyuMomentsManager';
 
 export default function createManagers(
   appStoragesManager: AppStoragesManager,
@@ -86,6 +87,7 @@ export default function createManagers(
     appCallsManager: new AppCallsManager,
     appReactionsManager: new AppReactionsManager,
     appMessagesManager: new AppMessagesManager,
+    appAyuMomentsManager: new AppAyuMomentsManager,
     appMessagesIdsManager: new AppMessagesIdsManager,
     appPrivacyManager: new AppPrivacyManager,
     appInlineBotsManager: new AppInlineBotsManager,

@@ -8,12 +8,12 @@ import type {Database} from '.';
 import {ActiveAccountNumber} from '../../lib/accounts/types';
 import {MOUNT_CLASS_TO} from '../debug';
 
-export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'>;
+export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'ayuMoments'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
 
 export const getOldDatabaseState = (): AccountDatabase => ({
   name: `tweb`,
-  version: 7,
+  version: 8,
   stores: [
     {
       name: 'session'
@@ -32,6 +32,10 @@ export const getOldDatabaseState = (): AccountDatabase => ({
     },
     {
       name: 'messages'
+    },
+    {
+      name: 'ayuMoments',
+      encryptedName: 'ayuMoments__encrypted'
     }
   ]
 });
@@ -52,9 +56,9 @@ export const getCommonDatabaseState = (): CommonDatabase => ({
 
 export const getDatabaseState = (
   accountNumber: ActiveAccountNumber
-): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'> => ({
+): Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp' | 'ayuMoments'> => ({
   name: `tweb-account-${accountNumber}`,
-  version: 9,
+  version: 10,
   stores: [
     {
       name: 'session',
@@ -83,6 +87,10 @@ export const getDatabaseState = (
     {
       name: 'webapp',
       encryptedName: 'webapp__encrypted'
+    },
+    {
+      name: 'ayuMoments',
+      encryptedName: 'ayuMoments__encrypted'
     }
   ]
 });

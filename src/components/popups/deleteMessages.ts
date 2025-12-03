@@ -17,6 +17,7 @@ import tsNow from '../../helpers/tsNow';
 import PopupDeleteMegagroupMessages from './deleteMegagroupMessages';
 import getParticipantPeerId from '../../lib/appManagers/utils/chats/getParticipantPeerId';
 import namedPromises from '../../helpers/namedPromises';
+import {getAyuMomentsSettings, shouldShowKeepLocallyPrompt} from '../../lib/ayuMoments/settings';
 
 export default class PopupDeleteMessages {
   constructor(
@@ -63,12 +64,40 @@ export default class PopupDeleteMessages {
       }
     }
 
-    const callback = (e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, revoke?: boolean) => {
+    const ayuSettings = getAyuMomentsSettings();
+    const canKeepLocally = !!(ayuSettings?.enabled && ayuSettings.saveDeleted);
+    const keepCheckboxKey: LangPackKey = 'ClientSettings.AyuMoments.DeletePrompt';
+    const showKeepCheckbox = canKeepLocally && shouldShowKeepLocallyPrompt();
+
+    const callback = async(e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, revoke?: boolean) => {
       onConfirm?.();
+
+      if(canKeepLocally && PopupElement.MANAGERS.appAyuMomentsManager) {
+        let keepLocally = false;
+        if(showKeepCheckbox) {
+          keepLocally = checked?.has(keepCheckboxKey) ?? false;
+        } else {
+          keepLocally = !!ayuSettings?.keepLocallyDefaultOn;
+        }
+
+        try {
+          if(keepLocally) {
+            await PopupElement.MANAGERS.appAyuMomentsManager.keepLocallyBeforeDelete(peerId, mids);
+          } else {
+            await PopupElement.MANAGERS.appAyuMomentsManager.registerDeletionSkip(peerId, mids);
+          }
+        } catch(err) {
+          console.error('[deleteMessages] ayu moments keep locally failed', err);
+        }
+      }
+
+      const revokeKeys: LangPackKey[] = ['DeleteMessagesOptionAlso', 'DeleteForAll', 'DeleteMessagesOption'];
+      const shouldRevoke = revoke ?? revokeKeys.some((key) => checked?.has(key));
+
       if(type === ChatType.Scheduled) {
         managers.appMessagesManager.deleteScheduledMessages(peerId, mids);
       } else {
-        managers.appMessagesManager.deleteMessages(peerId, mids, !!checked.size || revoke);
+        managers.appMessagesManager.deleteMessages(peerId, mids, shouldRevoke);
       }
     };
 
@@ -142,6 +171,15 @@ export default class PopupDeleteMessages {
 
         buttons[0].callback = (e, checked) => callback(e, checked, true);
       }
+    }
+
+    if(showKeepCheckbox) {
+      checkboxes.push({
+        text: keepCheckboxKey,
+        checked: !!ayuSettings?.keepLocallyDefaultOn,
+        name: 'ayu-keep-locally',
+        withRipple: true
+      });
     }
 
     addCancelButton(buttons);

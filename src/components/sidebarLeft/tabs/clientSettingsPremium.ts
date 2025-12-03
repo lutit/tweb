@@ -3,6 +3,7 @@ import SettingSection from '../../settingSection';
 import Row from '../../row';
 import CheckboxField from '../../checkboxField';
 import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
+import AppAyuMomentsTab from './ayuMoments';
 
 export default class AppClientSettingsPremiumTab extends SliderSuperTab {
   public init() {
@@ -59,8 +60,42 @@ export default class AppClientSettingsPremiumTab extends SliderSuperTab {
 
       container.content.append(forceCopyRow.container);
 
+      const ayuMomentToggles = [
+        {label: 'ClientSettings.AyuMoments.Enable', key: joinDeepPath('settings', 'client', 'ayuMoments', 'enabled'), name: 'client-ayu-enabled'},
+        {label: 'ClientSettings.AyuMoments.SaveDeleted', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveDeleted'), name: 'client-ayu-save-deleted'},
+        {label: 'ClientSettings.AyuMoments.SaveEdited', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveEdited'), name: 'client-ayu-save-edited'},
+        {label: 'ClientSettings.AyuMoments.IncludeBots', key: joinDeepPath('settings', 'client', 'ayuMoments', 'includeBots'), name: 'client-ayu-include-bots'},
+        {label: 'ClientSettings.AyuMoments.SaveReactions', key: joinDeepPath('settings', 'client', 'ayuMoments', 'saveReactions'), name: 'client-ayu-save-reactions'},
+        {label: 'ClientSettings.AyuMoments.KeepPrompt', key: joinDeepPath('settings', 'client', 'ayuMoments', 'keepLocallyPrompt'), name: 'client-ayu-keep-prompt'},
+        {label: 'ClientSettings.AyuMoments.KeepDefaultOn', key: joinDeepPath('settings', 'client', 'ayuMoments', 'keepLocallyDefaultOn'), name: 'client-ayu-keep-default'}
+      ] as const;
+
+      ayuMomentToggles.forEach(({label, key, name}) => {
+        const row = new Row({
+          titleLangKey: label,
+          checkboxField: new CheckboxField({
+            name,
+            stateKey: key,
+            toggle: true,
+            listenerSetter: this.listenerSetter
+          }),
+          listenerSetter: this.listenerSetter
+        });
+        container.content.append(row.container);
+      });
+
+      const viewerRow = new Row({
+        titleLangKey: 'ClientSettings.AyuMoments.OpenViewer',
+        navigationTab: {
+          constructor: AppAyuMomentsTab,
+          slider: this.slider
+        },
+        listenerSetter: this.listenerSetter
+      });
+
+      container.content.append(viewerRow.container);
+
       this.scrollable.append(container.container);
     }
   }
 }
-
