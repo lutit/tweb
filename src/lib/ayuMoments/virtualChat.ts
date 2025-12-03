@@ -71,7 +71,7 @@ export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOp
 
   const peerTitle = await getPeerTitle({peerId: options.peerId, plainText: true});
   const title = i18n('ClientSettings.AyuMoments.Popup.Title.Chat', [peerTitle]).textContent || peerTitle;
-  const subtitle = i18n('ClientSettings.AyuMoments.Context.ChatHistory').textContent || '';
+  const subtitle = i18n('SavedMessagesCount', [entries.length]).textContent || String(entries.length);
 
   registerVirtualChatSession({
     key: sessionKey,

@@ -806,8 +806,8 @@ export default class ChatContextMenu {
         for(const [peerId, mids] of this.chat.selection.selectedMids) {
           const storageKey: MessagesStorageKey = `${peerId}_${this.chat.type === ChatType.Scheduled ? 'scheduled' : 'history'}`;
           for(const mid of mids) {
-            const message = (await this.managers.appMessagesManager.getMessageFromStorage(storageKey, mid)) as Message.message;
-            if(!!message.message) {
+            const message = await this.managers.appMessagesManager.getMessageFromStorage(storageKey, mid);
+            if(message?._ === 'message' && !!message.message) {
               return true;
             }
           }
