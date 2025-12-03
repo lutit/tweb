@@ -17,7 +17,14 @@ Open http://localhost:8080/ in your browser.
 
 #### Running in production
 
-Run `node build` to build the minimized production version of the app. Copy `public` folder contents to your web server.
+Build a production bundle into `dist/` and copy it to your static web server:
+
+```bash
+pnpm install        # one time
+pnpm run build      # generates dist/ and syncs public/assets, public/custom-lang, public/changelogs into dist/
+```
+
+Then configure any static server (nginx, Caddy, etc.) to serve the contents of the `dist/` directory as the web root.
 
 ### Running in docker
 

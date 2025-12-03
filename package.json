@@ -9,7 +9,7 @@
     "start:clean": "vite --force",
     "start-in-docker": "vite --host",
     "serve": "pnpm run build; node server.js",
-    "build": "pnpm run generate-changelog && vite build",
+    "build": "pnpm run generate-changelog && vite build && node syncPublicToDist.js",
     "test": "vitest",
     "whybundled": "pnpm run profile && whybundled stats.json",
     "generate-mtproto-types": "node ./src/scripts/generate_mtproto_types.js src/",
