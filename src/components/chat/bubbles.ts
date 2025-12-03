@@ -8049,10 +8049,6 @@ export default class ChatBubbles {
   }
 
   public canForward(message: Message.message | Message.messageService) {
-    if(this.chat.type === ChatType.Virtual) {
-      return false;
-    }
-
     if(message?._ !== 'message' || message.pFlags.noforwards) {
       return false;
     }
@@ -8075,6 +8071,10 @@ export default class ChatBubbles {
     changedResults?: ReactionCount[],
     loadPromises?: Promise<any>[]
   ) {
+    if(this.chat.type === ChatType.Virtual) {
+      return;
+    }
+
     if(this.peerId.isUser() && USER_REACTIONS_INLINE/*  || true */) {
       return;
     }

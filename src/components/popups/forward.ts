@@ -74,7 +74,12 @@ export default class PopupForward extends PopupPickUser {
   }
 
   public static async create(...args: ConstructorParameters<typeof PopupForward>) {
-    const [peerIdMids] = args;
+    const [peerIdMids, onSelect, chatRightsAction, noTopics] = args;
+    if(!peerIdMids || !Object.keys(peerIdMids).length) {
+      PopupElement.createPopup(PopupForward, peerIdMids, onSelect, chatRightsAction, noTopics);
+      return;
+    }
+
     const messagesPromises = Object.keys(peerIdMids).map((peerId) => {
       const mids = peerIdMids[peerId as any as number];
       return mids.map((mid) => {
@@ -136,6 +141,7 @@ export default class PopupForward extends PopupPickUser {
       }
     });
 
-    PopupElement.createPopup(PopupForward, args[0], args[1], Array.from(actions));
+    const resolvedActions = actions.size ? Array.from(actions) : chatRightsAction;
+    PopupElement.createPopup(PopupForward, peerIdMids, onSelect, resolvedActions, noTopics);
   }
 }

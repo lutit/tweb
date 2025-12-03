@@ -2572,19 +2572,22 @@ export class AppMessagesManager extends AppManager {
       header.pFlags.quote = true;
     }
 
+    const originalMessageAsMessage = originalMessage as Message.message;
     if(replyToPeerId) {
       if(replyToPeerId.isUser() || !this.appPeersManager.isPeerPublic(replyToPeerId)) {
         delete header.reply_to_msg_id;
-        header.quote_text ??= (originalMessage as Message.message).message;
+        if(!header.quote_text && originalMessageAsMessage?.message) {
+          header.quote_text = originalMessageAsMessage.message;
+        }
       } else {
         header.reply_to_peer_id = this.appPeersManager.getOutputPeer(replyToPeerId);
       }
     }
 
-    header.reply_media = (originalMessage as Message.message)?.media;
+    header.reply_media = originalMessageAsMessage?.media;
 
     if(originalMessage && replyWillBeInPeerId !== originalMessage.peerId) {
-      header.reply_from = this.generateForwardHeader(peerId, originalMessage as Message.message, true);
+      header.reply_from = this.generateForwardHeader(peerId, originalMessageAsMessage, true);
     }
 
     return header;

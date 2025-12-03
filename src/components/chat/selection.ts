@@ -4,7 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import type {MessagesStorageKey} from '../../lib/appManagers/appMessagesManager';
+import type {MessagesStorageKey, MyMessage} from '../../lib/appManagers/appMessagesManager';
 import type ChatBubbles from './bubbles';
 import type ChatInput from './input';
 import type Chat from './chat';
@@ -44,6 +44,7 @@ import {toastNew} from '../toast';
 import confirmationPopup from '../confirmationPopup';
 import {makeFullMid} from './bubbles';
 import {ChatType} from './chat';
+import {forwardVirtualMessages as forwardVirtualMessagesHelper} from './virtualForward';
 
 const accumulateMapSet = (map: Map<any, Set<number>>) => {
   return [...map.values()].reduce((acc, v) => acc + v.size, 0);
@@ -419,6 +420,20 @@ class AppSelection extends EventListenerBase<{
     return Promise.all(selectedMessagesPromises);
   }
 
+  private getVirtualSelectedMessages() {
+    const messages: MyMessage[] = [];
+    this.selectedMids.forEach((mids, peerId) => {
+      const sorted = Array.from(mids).sort((a, b) => a - b);
+      sorted.forEach((mid) => {
+        const message = this.chat.getMessageByPeer(peerId, mid);
+        if(message) {
+          messages.push(message as MyMessage);
+        }
+      });
+    });
+    return messages;
+  }
+
   public toggleSelection(toggleCheckboxes = true, forceSelection = false) {
     const wasSelecting = this.isSelecting;
     const size = this.selectedMids.size;
@@ -768,6 +783,16 @@ export class SearchSelection extends AppSelection {
 
         this.selectionForwardBtn = ButtonIcon(`forward ${BASE_CLASS}-forward`);
         attachClickEvent(this.selectionForwardBtn, () => {
+          if(this.chat.type === ChatType.Virtual) {
+            const messages = this.getVirtualSelectedMessages();
+            forwardVirtualMessagesHelper({
+              managers: this.managers,
+              messages,
+              onComplete: () => this.cancelSelection()
+            });
+            return;
+          }
+
           const obj: {[fromPeerId: PeerId]: number[]} = {};
           for(const [fromPeerId, mids] of this.selectedMids) {
             obj[fromPeerId] = Array.from(mids).sort((a, b) => a - b);
@@ -864,6 +889,16 @@ export default class ChatSelection extends AppSelection {
         replySwipeHandler?.reset();
       }
     });
+  }
+
+  protected async updateContainer(forceSelection = false) {
+    if(this.chat.type === ChatType.Virtual) {
+      const size = this.selectedMids.size;
+      this.onUpdateContainer?.(!size, true, true, true);
+      return;
+    }
+
+    return super.updateContainer(forceSelection);
   }
 
   public appendCheckbox(bubble: HTMLElement, checkboxField: CheckboxField) {
@@ -1077,6 +1112,16 @@ export default class ChatSelection extends AppSelection {
           this.selectionForwardBtn = Button('btn-primary btn-transparent text-bold selection-container-forward', {icon: 'forward'});
           this.selectionForwardBtn.append(i18n('Forward'));
           attachClickEvent(this.selectionForwardBtn, () => {
+            if(this.chat.type === ChatType.Virtual) {
+              const messages = this.getVirtualSelectedMessages();
+              forwardVirtualMessagesHelper({
+                managers: this.managers,
+                messages,
+                onComplete: () => this.cancelSelection()
+              });
+              return;
+            }
+
             const obj: {[fromPeerId: PeerId]: number[]} = {};
             for(const [fromPeerId, mids] of this.selectedMids) {
               obj[fromPeerId] = Array.from(mids).sort((a, b) => a - b);

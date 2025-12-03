@@ -89,6 +89,7 @@ import {useIsFrozen} from '../../stores/appState';
 import prepareTextWithEntitiesForCopying from '../../helpers/prepareTextWithEntitiesForCopying';
 import formatBytes from '../../helpers/formatBytes';
 import {openAyuMomentsVirtualChat} from '../../lib/ayuMoments/virtualChat';
+import {forwardVirtualMessages as forwardVirtualMessagesHelper} from './virtualForward';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -411,7 +412,13 @@ export default class ChatContextMenu {
       if(!groupedItem && this.groupedMessages) this.message = getMainGroupedMessage(this.groupedMessages);
       this.mainMessage = this.groupedMessages ? getMainGroupedMessage(this.groupedMessages) : this.message;
       this.selectedMessages = this.chat.selection.isSelecting && !avatar ? await this.chat.selection.getSelectedMessages() : undefined;
-      this.noForwards = this.message && !isSponsored && !(await Promise.all((this.selectedMessages || [this.message]).map((message) => this.managers.appMessagesManager.canForward(message)))).every(Boolean);
+    if(this.chat.type === ChatType.Virtual) {
+      this.noForwards = false;
+    } else {
+      this.noForwards = this.message && !isSponsored &&
+        !(await Promise.all((this.selectedMessages || [this.message])
+          .map((message) => this.managers.appMessagesManager.canForward(message)))).every(Boolean);
+    }
       this.viewerPeerId = undefined;
       this.canOpenReactedList = undefined;
       this.linkToMessage = await this.getUrlToMessage();
@@ -864,6 +871,7 @@ export default class ChatContextMenu {
       text: 'Message.Context.Pin',
       onClick: this.onPinClick,
       verify: async() => !this.isLegacy &&
+        this.chat.type !== ChatType.Virtual &&
         !this.chat.isMonoforum &&
         !this.message.pFlags.is_outgoing &&
         this.message._ !== 'messageService' &&
@@ -875,7 +883,8 @@ export default class ChatContextMenu {
       icon: 'unpin',
       text: 'Message.Context.Unpin',
       onClick: this.onUnpinClick,
-      verify: () => (this.message as Message.message).pFlags.pinned &&
+      verify: () => this.chat.type !== ChatType.Virtual &&
+        (this.message as Message.message).pFlags.pinned &&
         this.managers.appPeersManager.canPinMessage(this.message.peerId) &&
         !useIsFrozen()
     }, {
@@ -1443,6 +1452,7 @@ export default class ChatContextMenu {
     let reactionsMenuPosition: 'horizontal' | 'vertical';
     if(
       this.isContextMenuFeatureEnabled('reactionsPanel') &&
+      this.chat.type !== ChatType.Virtual &&
       this.message &&
       (this.message._ === 'message' || (this.message._ === 'messageService' && this.message.pFlags.reactions_are_possible)) &&
       !this.chat.selection.isSelecting &&
@@ -1801,15 +1811,29 @@ export default class ChatContextMenu {
   };
 
   private onForwardClick = async() => {
+    if(this.chat.type === ChatType.Virtual) {
+      if(this.chat.selection.isSelecting) {
+        const messages = this.getVirtualSelectionMessages();
+        this.forwardVirtualMessages(messages, () => this.chat.selection.cancelSelection());
+      } else {
+        const peerId = this.messagePeerId;
+        const mids = this.isTargetAGroupedItem ? [this.mid] : await this.chat.getMidsByMid(peerId, this.mid);
+        const messages = this.collectVirtualMessages(peerId, mids);
+        this.forwardVirtualMessages(messages);
+      }
+      return;
+    }
+
     if(this.chat.selection.isSelecting) {
       simulateClickEvent(this.chat.selection.selectionForwardBtn);
-    } else {
-      const peerId = this.messagePeerId;
-      const mids = this.isTargetAGroupedItem ? [this.mid] : await this.chat.getMidsByMid(peerId, this.mid);
-      PopupForward.create({
-        [peerId]: mids
-      });
+      return;
     }
+
+    const peerId = this.messagePeerId;
+    const mids = this.isTargetAGroupedItem ? [this.mid] : await this.chat.getMidsByMid(peerId, this.mid);
+    PopupForward.create({
+      [peerId]: mids
+    });
   };
 
   private onRepeatClick = async() => {
@@ -1834,6 +1858,28 @@ export default class ChatContextMenu {
   private onSelectClick = () => {
     this.chat.selection.toggleByElement(findUpClassName(this.target, 'grouped-item') || findUpClassName(this.target, 'bubble'));
   };
+
+  private collectVirtualMessages(peerId: PeerId, mids: number[]) {
+    return mids.map((mid) => this.chat.getMessageByPeer(peerId, mid))
+      .filter(Boolean) as MyMessage[];
+  }
+
+  private getVirtualSelectionMessages() {
+    const messages: MyMessage[] = [];
+    this.chat.selection.selectedMids.forEach((mids, peerId) => {
+      const sorted = Array.from(mids).sort((a, b) => a - b);
+      messages.push(...this.collectVirtualMessages(peerId, sorted));
+    });
+    return messages;
+  }
+
+  private forwardVirtualMessages(messages: MyMessage[], onComplete?: () => void) {
+    forwardVirtualMessagesHelper({
+      managers: this.managers,
+      messages,
+      onComplete
+    });
+  }
 
   private onClearSelectionClick = () => {
     this.chat.selection.cancelSelection();
