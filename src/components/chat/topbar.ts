@@ -72,6 +72,7 @@ import getPeerId from '../../lib/appManagers/utils/peers/getPeerId';
 import namedPromises from '../../helpers/namedPromises';
 import appDialogsManager from '../../lib/appManagers/appDialogsManager';
 import {createEffect, createRoot, on} from 'solid-js';
+import {openAyuMomentsVirtualChat} from '../../lib/ayuMoments/virtualChat';
 
 type ButtonToVerify = {element?: HTMLElement, verify: () => boolean | Promise<boolean>};
 
@@ -609,6 +610,18 @@ export default class ChatTopbar {
         this.peerId.isUser() &&
         (await this.managers.appPeersManager.isContact(this.peerId)) &&
         !!(await this.managers.appUsersManager.getUser(this.peerId.toUserId())).phone
+    }, {
+      icon: 'timer',
+      text: 'ClientSettings.AyuMoments.Context.ChatHistory',
+      onClick: () => {
+        openAyuMomentsVirtualChat({peerId: this.peerId, mode: 'deleted'});
+      },
+      verify: async() => {
+        if(this.chat.type === ChatType.Virtual) return false;
+        const manager = this.managers.appAyuMomentsManager;
+        if(!manager) return false;
+        return manager.hasDeletedMomentsForPeer(this.peerId);
+      }
     }, {
       icon: 'gift',
       text: 'Chat.Menu.SendGift',
