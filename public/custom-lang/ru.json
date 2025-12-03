@@ -64,8 +64,6 @@
   "ClientSettings.AyuMoments.EmptyDeleted": "Вы ещё ничего не сохранили.",
   "ClientSettings.AyuMoments.EmptyEdits": "История правок пуста.",
   "ClientSettings.AyuMoments.Attachment": "[Вложение]",
-  "ClientSettings.AyuMoments.Action.Copy": "Копировать",
-  "ClientSettings.AyuMoments.Action.Remove": "Удалить",
   "ClientSettings.AyuMoments.RevisionCount": {
     "one_value": "%d правка",
     "few_value": "%d правки",

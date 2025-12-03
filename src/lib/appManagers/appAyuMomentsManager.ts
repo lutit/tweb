@@ -379,10 +379,9 @@ export default class AppAyuMomentsManager extends AppManager {
     return {deleted, edits};
   }
 
-  public async hasAnyMomentsForPeer(peerId: PeerId) {
+  public async hasDeletedMomentsForPeer(peerId: PeerId) {
     await this.ensureReady();
-    return Array.from(this.deletedByKey.values()).some((entry) => entry.peerId === peerId) ||
-      Array.from(this.editsByKey.values()).some((entry) => entry.peerId === peerId);
+    return Array.from(this.deletedByKey.values()).some((entry) => entry.peerId === peerId);
   }
 
 }

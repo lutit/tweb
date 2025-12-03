@@ -64,8 +64,6 @@
   "ClientSettings.AyuMoments.EmptyDeleted": "No deleted messages were saved yet.",
   "ClientSettings.AyuMoments.EmptyEdits": "No edit history saved yet.",
   "ClientSettings.AyuMoments.Attachment": "[Attachment]",
-  "ClientSettings.AyuMoments.Action.Copy": "Copy text",
-  "ClientSettings.AyuMoments.Action.Remove": "Remove",
   "ClientSettings.AyuMoments.RevisionCount": {
     "one_value": "%d revision",
     "other_value": "%d revisions"
