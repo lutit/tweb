@@ -51,6 +51,7 @@ function main() {
   ensureDistExists();
 
   const subdirs = ['assets', 'custom-lang', 'changelogs'];
+  const rootFiles = ['_redirects', '_headers', '404.html'];
 
   for (const dir of subdirs) {
     const src = path.join(publicDir, dir);
@@ -58,12 +59,22 @@ function main() {
       continue;
     }
 
-      // Copy only well-known static dirs from public to dist
+    // Copy only well-known static dirs from public to dist
     const dest = path.join(distDir, dir);
     console.log(`syncPublicToDist: copying ${src} -> ${dest}`);
     copyDirectory(src, dest);
   }
+
+  for (const file of rootFiles) {
+    const src = path.join(publicDir, file);
+    if (!fs.existsSync(src) || !fs.statSync(src).isFile()) {
+      continue;
+    }
+
+    const dest = path.join(distDir, file);
+    console.log(`syncPublicToDist: copying ${src} -> ${dest}`);
+    fs.copyFileSync(src, dest);
+  }
 }
 
 main();
-
