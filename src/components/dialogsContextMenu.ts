@@ -30,6 +30,7 @@ import memoizeAsyncWithTTL from '../helpers/memoizeAsyncWithTTL';
 import {MonoforumDialog} from '../lib/storages/monoforumDialogs';
 import {openRemoveFeePopup} from './chat/removeFee';
 import apiManagerProxy from '../lib/mtproto/mtprotoworker';
+import {openChatHistory} from './popups/ayuMoments';
 
 
 export default class DialogsContextMenu {
@@ -131,6 +132,12 @@ export default class DialogsContextMenu {
       text: 'MarkAsRead',
       onClick: this.onUnreadClick,
       verify: () => this.managers.appMessagesManager.isDialogUnread(this.dialog)
+    }, {
+      icon: 'timer',
+      text: 'ClientSettings.AyuMoments.Context.ChatHistory',
+      onClick: () => openChatHistory(this.peerId),
+      verify: async() => !!this.managers.appAyuMomentsManager &&
+        await this.managers.appAyuMomentsManager.hasAnyMomentsForPeer(this.peerId)
     }, createSubmenuTrigger({
       icon: 'folder',
       text: 'AddToFolder',

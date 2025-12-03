@@ -3,7 +3,6 @@ import SettingSection from '../../settingSection';
 import Row from '../../row';
 import CheckboxField from '../../checkboxField';
 import {joinDeepPath} from '../../../helpers/object/setDeepProperty';
-import AppAyuMomentsTab from './ayuMoments';
 
 export default class AppClientSettingsPremiumTab extends SliderSuperTab {
   public init() {
@@ -83,17 +82,6 @@ export default class AppClientSettingsPremiumTab extends SliderSuperTab {
         });
         container.content.append(row.container);
       });
-
-      const viewerRow = new Row({
-        titleLangKey: 'ClientSettings.AyuMoments.OpenViewer',
-        navigationTab: {
-          constructor: AppAyuMomentsTab,
-          slider: this.slider
-        },
-        listenerSetter: this.listenerSetter
-      });
-
-      container.content.append(viewerRow.container);
 
       this.scrollable.append(container.container);
     }

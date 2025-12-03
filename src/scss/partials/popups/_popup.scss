@@ -284,6 +284,15 @@ $popup-footer-abitlarger-padding: 1rem;
   }
 }
 
+.popup-ayu-moments {
+  --popup-min-width: 520px;
+  --popup-max-width: 720px;
+
+  .popup-body {
+    min-height: 360px;
+  }
+}
+
 .suggested-post-popup {
   .popup-container {
     width: 400px !important;

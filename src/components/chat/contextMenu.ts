@@ -88,6 +88,7 @@ import {hasSensitiveSpoiler} from '../wrappers/mediaSpoiler';
 import {useIsFrozen} from '../../stores/appState';
 import prepareTextWithEntitiesForCopying from '../../helpers/prepareTextWithEntitiesForCopying';
 import formatBytes from '../../helpers/formatBytes';
+import {openMessageHistory} from '../popups/ayuMoments';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -655,6 +656,17 @@ export default class ChatContextMenu {
       verify: () => this.isContextMenuFeatureEnabled('details') && !this.chat.selection.isSelecting && !!this.message,
       separatorDown: true
     }, this.createDetailsSubmenu) as ChatContextMenuButton, {
+      icon: 'timer',
+      text: 'ClientSettings.AyuMoments.Context.History',
+      onClick: () => openMessageHistory(this.peerId, this.mid),
+      verify: async() => {
+        if(this.chat.selection.isSelecting) return false;
+        if(!this.message || this.message._ !== 'message') return false;
+        const manager = rootScope.managers?.appAyuMomentsManager;
+        if(!manager) return false;
+        return manager.hasEditHistory(this.peerId, this.mid);
+      }
+    }, {
       icon: 'send2',
       text: 'MessageScheduleSend',
       onClick: this.onSendScheduledClick,

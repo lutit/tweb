@@ -357,4 +357,32 @@ export default class AppAyuMomentsManager extends AppManager {
     };
   }
 
+  public async hasEditHistory(peerId: PeerId, mid: number) {
+    await this.ensureReady();
+    return this.editsByKey.has(this.getMessageKey(peerId, mid));
+  }
+
+  public async getEditHistory(peerId: PeerId, mid: number) {
+    await this.ensureReady();
+    const history = this.editsByKey.get(this.getMessageKey(peerId, mid));
+    return history ? copy(history) : undefined;
+  }
+
+  public async getPeerSnapshot(peerId: PeerId) {
+    await this.ensureReady();
+    const deleted = Array.from(this.deletedByKey.values())
+      .filter((entry) => entry.peerId === peerId)
+      .map((entry) => copy(entry));
+    const edits = Array.from(this.editsByKey.values())
+      .filter((entry) => entry.peerId === peerId)
+      .map((entry) => copy(entry));
+    return {deleted, edits};
+  }
+
+  public async hasAnyMomentsForPeer(peerId: PeerId) {
+    await this.ensureReady();
+    return Array.from(this.deletedByKey.values()).some((entry) => entry.peerId === peerId) ||
+      Array.from(this.editsByKey.values()).some((entry) => entry.peerId === peerId);
+  }
+
 }
