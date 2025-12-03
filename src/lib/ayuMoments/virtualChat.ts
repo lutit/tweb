@@ -106,7 +106,8 @@ export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOp
   const virtualPeer: VirtualPeerDescriptor = {
     key: sessionKey,
     title,
-    subtitle
+    subtitle,
+    layout: 'forum'
   };
 
   await appImManager.setPeer({

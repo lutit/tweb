@@ -1022,10 +1022,13 @@ export default class Chat extends EventListenerBase<{
   }
 
   private applyVirtualPeerDefaults() {
+    const layout = this.virtualPeer?.layout ?? 'default';
+    const isForumLayout = layout === 'forum';
+
     this.noForwards = true;
-    this.isLikeGroup = false;
-    this.isAnyGroup = false;
-    this.isMegagroup = false;
+    this.isLikeGroup = isForumLayout;
+    this.isAnyGroup = isForumLayout;
+    this.isMegagroup = isForumLayout;
     this.isBroadcast = false;
     this.isChannel = false;
     this.isBot = false;

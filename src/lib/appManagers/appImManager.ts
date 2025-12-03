@@ -170,6 +170,7 @@ export type VirtualPeerDescriptor = {
   key: string;
   title: string;
   subtitle?: string;
+  layout?: 'default' | 'forum';
 };
 
 export enum APP_TABS {

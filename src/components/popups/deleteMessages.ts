@@ -65,7 +65,7 @@ export default class PopupDeleteMessages {
     }
 
     const ayuSettings = getAyuMomentsSettings();
-    const canKeepLocally = !!(ayuSettings?.enabled && ayuSettings.saveDeleted);
+    const canKeepLocally = !!ayuSettings?.saveDeleted;
     const keepCheckboxKey: LangPackKey = 'ClientSettings.AyuMoments.DeletePrompt';
     const showKeepCheckbox = canKeepLocally && shouldShowKeepLocallyPrompt();
 
