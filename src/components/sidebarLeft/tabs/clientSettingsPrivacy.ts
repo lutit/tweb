@@ -38,7 +38,6 @@ export default class AppClientSettingsPrivacyTab extends SliderSuperTab {
     });
 
     const ghostHeaderRow = new Row({
-      icon: 'ghost',
       titleLangKey: 'ClientSettings.GhostMode',
       checkboxField: ghostEnabledCheckbox,
       listenerSetter: this.listenerSetter
