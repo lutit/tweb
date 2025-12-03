@@ -171,10 +171,22 @@ namespace I18n {
       import('../lang'),
       import('../langSign'),
       import('../countries')
-    ]).then(([lang, langSign, countries]) => {
-      const strings: LangPackString[] = [];
+    ]).then(async([lang, langSign, countries]) => {
+      let strings: LangPackString[] = [];
       formatLocalStrings(lang.default, strings);
       formatLocalStrings(langSign.default, strings);
+
+      try {
+        const overlayStrings = await loadCustomLangPackOverlay(defaultCode);
+        if(overlayStrings?.length) {
+          const merged = new Map<string, LangPackString>();
+          strings.forEach((string) => merged.set(string.key, string));
+          overlayStrings.forEach((string) => merged.set(string.key, string));
+          strings = Array.from(merged.values());
+        }
+      } catch(err) {
+        console.error('failed to load local custom lang overlay', err);
+      }
 
       const langPack: LangPackDifference = {
         _: 'langPackDifference',
@@ -202,29 +214,33 @@ namespace I18n {
     ]);
   }
 
-  async function loadCustomLangPackOverlay(langCode: string): Promise<LangPackString[] | undefined> {
-    const template = import.meta.env.VITE_CUSTOM_LANG_URL_TEMPLATE as string | undefined;
-    if(!template) {
+  const DEFAULT_CUSTOM_LANG_TEMPLATE = '/custom-lang/{lang}.json';
+
+  async function fetchCustomLangPackOverlay(template: string, langCode?: string): Promise<LangPackString[] | undefined> {
+    if(!langCode || typeof(fetch) === 'undefined') {
       return;
     }
-
-    if(typeof(fetch) === 'undefined') {
-      console.error('custom lang pack overlay skipped: fetch API is not available');
-      return;
-    }
-
-    const url = template.replace('{lang}', encodeURIComponent(langCode));
 
     try {
+      const url = template.replace('{lang}', encodeURIComponent(langCode));
       const response = await fetch(url, {cache: 'no-cache'});
       if(!response.ok) {
-        console.error('custom lang pack overlay HTTP error', response.status, response.statusText);
+        if(response.status !== 404) {
+          console.error('custom lang pack overlay HTTP error', response.status, response.statusText, url);
+        }
         return;
       }
 
-      const data = await response.json();
+      let data: unknown;
+      try {
+        data = await response.json();
+      } catch(err) {
+        console.error('custom lang pack overlay invalid JSON', url, err);
+        return;
+      }
+
       if(!data || typeof(data) !== 'object') {
-        console.error('custom lang pack overlay has invalid JSON structure');
+        console.error('custom lang pack overlay has invalid JSON structure', url);
         return;
       }
 
@@ -237,26 +253,73 @@ namespace I18n {
     }
   }
 
+  async function loadCustomLangPackOverlay(langCode: string): Promise<LangPackString[] | undefined> {
+    const templates: string[] = [DEFAULT_CUSTOM_LANG_TEMPLATE];
+    const templateFromEnv = import.meta.env.VITE_CUSTOM_LANG_URL_TEMPLATE as string | undefined;
+    if(templateFromEnv && !templates.includes(templateFromEnv)) {
+      templates.push(templateFromEnv);
+    }
+
+    if(typeof(fetch) === 'undefined') {
+      return;
+    }
+
+    const normalized = langCode?.split('-')[0];
+    const codes = Array.from(new Set([langCode, normalized].filter(Boolean))) as string[];
+    if(!codes.length) {
+      return;
+    }
+
+    const overlayStrings: LangPackString[] = [];
+    const visited = new Set<string>();
+
+    for(const template of templates) {
+      for(const code of codes) {
+        const key = `${template}|${code}`;
+        if(visited.has(key)) {
+          continue;
+        }
+        visited.add(key);
+
+        const strings = await fetchCustomLangPackOverlay(template, code);
+        if(strings?.length) {
+          overlayStrings.push(...strings);
+        }
+      }
+    }
+
+    return overlayStrings.length ? overlayStrings : undefined;
+  }
+
   export function getStrings(langCode: string, strings: string[]) {
     return rootScope.managers.appLangPackManager.getStrings(langCode, strings);
   }
 
   export function formatLocalStrings(strings: any, pushTo: LangPackString[] = []) {
-    for(const i in strings) {
-      // @ts-ignore
-      const v = strings[i];
-      if(typeof(v) === 'string') {
+    if(!strings || typeof(strings) !== 'object') {
+      return pushTo;
+    }
+
+    for(const key in strings) {
+      if(!Object.prototype.hasOwnProperty.call(strings, key)) {
+        continue;
+      }
+
+      const value = strings[key];
+      if(typeof(value) === 'string') {
         pushTo.push({
           _: 'langPackString',
-          key: i,
-          value: v
+          key,
+          value
         });
-      } else {
+      } else if(value && typeof(value) === 'object' && !Array.isArray(value)) {
         pushTo.push({
           _: 'langPackStringPluralized',
-          key: i,
-          ...v
+          key,
+          ...value
         });
+      } else {
+        console.error('[langPack] skip invalid translation value', key, value);
       }
     }
 

@@ -1010,7 +1010,7 @@ export default class Chat extends EventListenerBase<{
 
     // this.container && this.container.classList.toggle('no-forwards', this.noForwards);
 
-    if(!this.excludeParts.sharedMedia && type !== ChatType.Virtual) {
+    if(!this.excludeParts.sharedMedia) {
       this.sharedMediaTab = appSidebarRight.createSharedMediaTab();
       this.sharedMediaTabs.push(this.sharedMediaTab);
       const linkedMonoforumId = (chat?._ === 'channel' && chat.pFlags?.monoforum && chat.linked_monoforum_id)?.toPeerId?.(true);

@@ -3919,7 +3919,7 @@ const lang = {
   'ClientSettings.AyuMoments.SaveReactions': 'Save reactions snapshot',
   'ClientSettings.AyuMoments.KeepPrompt': 'Show “Keep locally” toggle when deleting',
   'ClientSettings.AyuMoments.KeepDefaultOn': 'Keep locally by default',
-  'ClientSettings.AyuMoments.DeletePrompt': 'Keep locally (Ayu moments)',
+  'ClientSettings.AyuMoments.DeletePrompt': 'Keep locally',
   'ClientSettings.AyuMoments.Deleted': 'Deleted messages',
   'ClientSettings.AyuMoments.Edited': 'Edited messages',
   'ClientSettings.AyuMoments.EmptyDeleted': 'No deleted messages were saved yet.',

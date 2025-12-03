@@ -23,8 +23,7 @@ export function forwardVirtualMessages(options: {
         peerId,
         threadId,
         monoforumThreadId,
-        text: payload,
-        clearDraft: false
+        text: payload
       });
       options.onComplete?.();
     }

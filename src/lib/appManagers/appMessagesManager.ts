@@ -202,7 +202,9 @@ export type PinnedStorage = Partial<{
 }>;
 export type MessagesStorage = Map<number, Message.message | Message.messageService> & {peerId: PeerId, type: MessagesStorageType, key: MessagesStorageKey};
 export type MessagesStorageType = 'scheduled' | 'history' | 'grouped';
-export type MessagesStorageKey = `${PeerId}_${MessagesStorageType}`;
+export type MessagesStorageKey =
+  `${PeerId}_${MessagesStorageType}` |
+  `${PeerId}_${MessagesStorageType}_virtual_${string}`;
 
 export type MyMessageActionType = Message.messageService['action']['_'];
 
@@ -253,6 +255,7 @@ export type SuggestedPostPayload = {
 export type MessageSendingParams = Partial<{
   peerId: PeerId,
   threadId: number,
+  monoforumThreadId?: PeerId,
   replyToMsgId: number,
   replyToStoryId: number,
   replyToQuote: {text: string, entities?: MessageEntity[], offset?: number},

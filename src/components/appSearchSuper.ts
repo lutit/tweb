@@ -120,6 +120,7 @@ export type SearchSuperContext = {
   folderId?: number,
   threadId?: number,
   monoforumThreadId?: PeerId,
+  virtualKey?: string,
   date?: number,
   nextRate?: number,
   minDate?: number,
