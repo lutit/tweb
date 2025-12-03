@@ -88,7 +88,7 @@ import {hasSensitiveSpoiler} from '../wrappers/mediaSpoiler';
 import {useIsFrozen} from '../../stores/appState';
 import prepareTextWithEntitiesForCopying from '../../helpers/prepareTextWithEntitiesForCopying';
 import formatBytes from '../../helpers/formatBytes';
-import {openMessageHistory} from '../popups/ayuMoments';
+import {openAyuMomentsVirtualChat} from '../../lib/ayuMoments/virtualChat';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -658,7 +658,7 @@ export default class ChatContextMenu {
     }, this.createDetailsSubmenu) as ChatContextMenuButton, {
       icon: 'timer',
       text: 'ClientSettings.AyuMoments.Context.History',
-      onClick: () => openMessageHistory(this.peerId, this.mid),
+      onClick: () => openAyuMomentsVirtualChat({peerId: this.peerId, focusOriginalMid: this.mid}),
       verify: async() => {
         if(this.chat.selection.isSelecting) return false;
         if(!this.message || this.message._ !== 'message') return false;
@@ -980,19 +980,24 @@ export default class ChatContextMenu {
       icon: 'rotate_right',
       text: 'Resend',
       onClick: () => this.handleRepay(),
-      verify: () => 'repayRequest' in this.message && !!this.message.repayRequest
+      verify: () => this.chat.type !== ChatType.Virtual &&
+        'repayRequest' in this.message &&
+        !!this.message.repayRequest
     }, {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
       onClick: this.onDeleteClick,
-      verify: async() => this.managers.appMessagesManager.canDeleteMessage(this.message)
+      verify: async() => this.chat.type !== ChatType.Virtual &&
+        this.managers.appMessagesManager.canDeleteMessage(this.message)
     }, {
       icon: 'delete',
       className: 'danger',
       text: 'Message.Context.Selection.Delete',
       onClick: this.onDeleteClick,
-      verify: () => this.isSelected && !this.chat.selection.selectionDeleteBtn.hasAttribute('disabled'),
+      verify: () => this.chat.type !== ChatType.Virtual &&
+        this.isSelected &&
+        !this.chat.selection.selectionDeleteBtn.hasAttribute('disabled'),
       notDirect: () => true,
       withSelection: true
     },

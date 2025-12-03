@@ -2026,3 +2026,25 @@ $time-margin-left: math.div($message-padding-horizontal, -2) + 1px;
   inset-inline-end: 4px;
   top: 4px;
 }
+
+.chat.is-virtual {
+  .chat-input,
+  .chat-input-wrapper,
+  .chat-input-control,
+  .chat-input-secondary-button,
+  .chat-input-fixed,
+  .chat-actions,
+  .chat-input-control-button,
+  .chat-reply,
+  .chat-input-hint,
+  .chat-input-wrapper-background,
+  .chat-input-control-secondary,
+  .chat-input-control .reply {
+    display: none !important;
+  }
+
+  .chat-topbar__pin,
+  .chat-topbar__right {
+    display: none;
+  }
+}

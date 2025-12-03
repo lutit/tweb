@@ -138,6 +138,7 @@ import {createRoot, createEffect, createSignal, Signal} from 'solid-js';
 import {StoryPreview, wrapStoryMedia} from '../stories/preview';
 import wrapReply from '../wrappers/reply';
 import {modifyAckedPromise} from '../../helpers/modifyAckedResult';
+import {getVirtualChatSession} from '../../lib/virtualChats/registry';
 import callbackify from '../../helpers/callbackify';
 import {avatarNew, findUpAvatar} from '../avatarNew';
 import Icon from '../icon';
@@ -4165,6 +4166,10 @@ export default class ChatBubbles {
   }
 
   private tryToForceStartParam(middleware: () => boolean) {
+    if(this.chat.type === ChatType.Virtual) {
+      return;
+    }
+
     // start bot instantly if have messages
     const startParam = this.chat.input.startParam;
     if(startParam === undefined) {
@@ -4243,7 +4248,7 @@ export default class ChatBubbles {
 
     let followingUnread: boolean;
     let readMaxId = 0, savedPosition: ReturnType<AppImManager['getChatSavedPosition']>, overrideAdditionMsgId: number;
-    if(!isTarget) {
+    if(this.chat.type !== ChatType.Virtual && !isTarget) {
       if(!samePeer) {
         savedPosition = this.chat.appImManager.getChatSavedPosition(this.chat);
       }
@@ -4290,7 +4295,7 @@ export default class ChatBubbles {
       }
     }
 
-    if(startParam === undefined && await m(this.chat.isStartButtonNeeded())) {
+    if(this.chat.type !== ChatType.Virtual && startParam === undefined && await m(this.chat.isStartButtonNeeded())) {
       startParam = BOT_START_PARAM;
     }
 
@@ -8044,6 +8049,10 @@ export default class ChatBubbles {
   }
 
   public canForward(message: Message.message | Message.messageService) {
+    if(this.chat.type === ChatType.Virtual) {
+      return false;
+    }
+
     if(message?._ !== 'message' || message.pFlags.noforwards) {
       return false;
     }
@@ -8451,6 +8460,25 @@ export default class ChatBubbles {
   };
 
   public requestHistory(offsetId: number | FullMid, limit: number, backLimit: number): Promise<AckedResult<HistoryResult>>  {
+    if(this.chat.type === ChatType.Virtual && this.chat.virtualPeer) {
+      const session = getVirtualChatSession(this.chat.virtualPeer.key);
+      const historyStorage = session?.historyStorage;
+      const historySliced = historyStorage?.history;
+      const slice = historySliced?.first ?? historySliced?.constructSlice();
+      const history = slice ? Array.from(slice) : [];
+      const isEnd = slice?.getEnds?.() ?? {top: true, bottom: true, both: true};
+      const count = historyStorage?.count ?? history.length;
+      return Promise.resolve({
+        cached: true,
+        result: Promise.resolve({
+          history,
+          count,
+          isEnd,
+          offsetIdOffset: 0
+        })
+      });
+    }
+
     let offsetPeerId: PeerId;
     if(typeof(offsetId) === 'string') {
       const {peerId, mid} = splitFullMid(offsetId);

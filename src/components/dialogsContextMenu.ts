@@ -30,7 +30,7 @@ import memoizeAsyncWithTTL from '../helpers/memoizeAsyncWithTTL';
 import {MonoforumDialog} from '../lib/storages/monoforumDialogs';
 import {openRemoveFeePopup} from './chat/removeFee';
 import apiManagerProxy from '../lib/mtproto/mtprotoworker';
-import {openChatHistory} from './popups/ayuMoments';
+import {openAyuMomentsVirtualChat} from '../lib/ayuMoments/virtualChat';
 
 
 export default class DialogsContextMenu {
@@ -135,7 +135,7 @@ export default class DialogsContextMenu {
     }, {
       icon: 'timer',
       text: 'ClientSettings.AyuMoments.Context.ChatHistory',
-      onClick: () => openChatHistory(this.peerId),
+      onClick: () => openAyuMomentsVirtualChat({peerId: this.peerId}),
       verify: async() => !!this.managers.appAyuMomentsManager &&
         await this.managers.appAyuMomentsManager.hasDeletedMomentsForPeer(this.peerId)
     }, createSubmenuTrigger({

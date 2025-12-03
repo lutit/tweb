@@ -75,6 +75,7 @@ import {ApiLimitType} from '../mtproto/api_methods';
 import getFwdFromName from './utils/messages/getFwdFromName';
 import filterUnique from '../../helpers/array/filterUnique';
 import getSearchType from './utils/messages/getSearchType';
+import {getVirtualChatSession} from '../virtualChats/registry';
 import getMainGroupedMessage from './utils/messages/getMainGroupedMessage';
 import getUnreadReactions from './utils/messages/getUnreadReactions';
 import isMentionUnread from './utils/messages/isMentionUnread';
@@ -136,7 +137,7 @@ export type SendFileDetails = {
   spoiler: boolean
 }>;
 
-export type HistoryStorageKey = `${HistoryStorage['type']}_${PeerId}` | `replies_${PeerId}_${number}` | `search_${PeerId}_${SearchStorageFilterKey}_${number}`;
+export type HistoryStorageKey = `${HistoryStorage['type']}_${string}`;
 export type HistoryStorage = {
   _maxId: number,
   count: number | null,
@@ -305,7 +306,8 @@ export type RequestHistoryOptions = {
   chatType?: 'all' | 'users' | 'groups' | 'channels',
   recursion?: boolean,                  // ! FOR INNER USE ONLY
   historyType?: HistoryType,            // ! FOR INNER USE ONLY
-  searchType?: 'cached' | 'uncached'    // ! FOR INNER USE ONLY
+  searchType?: 'cached' | 'uncached',   // ! FOR INNER USE ONLY
+  virtualKey?: string                   // * used by local virtual chats
 };
 
 type GetHistoryTypeOptions = {
@@ -8299,6 +8301,12 @@ export class AppMessagesManager extends AppManager {
     options.offsetId ??= 0;
     options.historyType ??= this.getHistoryType(options.peerId, {threadId: options.threadId, monoforumPeerId: options.monoforumThreadId});
     options.searchType ??= getSearchType(options);
+    if(options.virtualKey && !options.historyStorage) {
+      const virtualSession = getVirtualChatSession(options.virtualKey);
+      if(virtualSession) {
+        options.historyStorage = virtualSession.historyStorage;
+      }
+    }
     if(options.savedReaction) {
       options.savedReaction = options.savedReaction.filter(Boolean);
       if(!options.savedReaction.length) {

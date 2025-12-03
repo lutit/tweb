@@ -7,7 +7,7 @@
 import type {ChatRights} from '../../lib/appManagers/appChatsManager';
 import type {RequestWebViewOptions} from '../../lib/appManagers/appAttachMenuBotsManager';
 import type {HistoryStorageKey, MessageSendingParams, MessagesStorageKey, RequestHistoryOptions} from '../../lib/appManagers/appMessagesManager';
-import {AppImManager, APP_TABS, ChatSetPeerOptions} from '../../lib/appManagers/appImManager';
+import {AppImManager, APP_TABS, ChatSetPeerOptions, VirtualPeerDescriptor} from '../../lib/appManagers/appImManager';
 import EventListenerBase from '../../helpers/eventListenerBase';
 import {logger, LogTypes} from '../../lib/logger';
 import rootScope from '../../lib/rootScope';
@@ -38,6 +38,7 @@ import {Message, WallPaper, Chat as MTChat, Reaction, AvailableReaction, ChatFul
 import animationIntersector, {AnimationItemGroup} from '../animationIntersector';
 import {getColorsFromWallPaper} from '../../helpers/color';
 import apiManagerProxy from '../../lib/mtproto/mtprotoworker';
+import {getVirtualChatSession, unregisterVirtualChatSession} from '../../lib/virtualChats/registry';
 import deferredPromise, {CancellablePromise, bindPromiseToDeferred} from '../../helpers/cancellablePromise';
 import {isDialog} from '../../lib/appManagers/utils/dialogs/isDialog';
 import getDialogKey from '../../lib/appManagers/utils/dialogs/getDialogKey';
@@ -84,7 +85,8 @@ export enum ChatType {
   Scheduled = 'scheduled',
   Stories = 'stories',
   Saved = 'saved',
-  Search = 'search'
+  Search = 'search',
+  Virtual = 'virtual'
 };
 
 export type ChatSearchKeys = Pick<RequestHistoryOptions, 'query' | 'isCacheableSearch' | 'isPublicHashtag' | 'savedReaction' | 'fromPeerId' | 'inputFilter' | 'hashtagType'>;
@@ -125,6 +127,7 @@ export default class Chat extends EventListenerBase<{
   public log: ReturnType<typeof logger>;
 
   public type: ChatType;
+  public virtualPeer?: VirtualPeerDescriptor;
   public messagesStorageKey: MessagesStorageKey;
   public historyStorageKeySignal: ReturnType<typeof createUnifiedSignal<HistoryStorageKey>>;
   public historyStorageKeyNoThreadIdSignal: ReturnType<typeof createUnifiedSignal<HistoryStorageKey>>;
@@ -864,6 +867,10 @@ export default class Chat extends EventListenerBase<{
     this.destroyMiddlewareHelper.destroy();
 
     this.cleanupBackground();
+    if(this.virtualPeer) {
+      unregisterVirtualChatSession(this.virtualPeer.key);
+      this.virtualPeer = undefined;
+    }
 
     this.topbar =
       this.bubbles =
@@ -919,6 +926,11 @@ export default class Chat extends EventListenerBase<{
 
     const type = options.type ?? ChatType.Chat;
     this.setType(type);
+
+    if(type === ChatType.Virtual) {
+      this.applyVirtualPeerDefaults();
+      return;
+    }
 
     const {
       noForwards,
@@ -991,11 +1003,14 @@ export default class Chat extends EventListenerBase<{
       this.selection.isScheduled = type === ChatType.Scheduled;
     }
 
-    this.messagesStorageKey = `${this.peerId}_${this.type === ChatType.Scheduled ? 'scheduled' : 'history'}`;
+    const storageSuffix = this.type === ChatType.Scheduled ? 'scheduled' : 'history';
+    this.messagesStorageKey = this.virtualPeer ?
+      `${this.peerId}_${storageSuffix}_virtual_${this.virtualPeer.key}` :
+      `${this.peerId}_${storageSuffix}`;
 
     // this.container && this.container.classList.toggle('no-forwards', this.noForwards);
 
-    if(!this.excludeParts.sharedMedia) {
+    if(!this.excludeParts.sharedMedia && type !== ChatType.Virtual) {
       this.sharedMediaTab = appSidebarRight.createSharedMediaTab();
       this.sharedMediaTabs.push(this.sharedMediaTab);
       const linkedMonoforumId = (chat?._ === 'channel' && chat.pFlags?.monoforum && chat.linked_monoforum_id)?.toPeerId?.(true);
@@ -1006,12 +1021,34 @@ export default class Chat extends EventListenerBase<{
     this.selection?.cleanup(); // TODO: REFACTOR !!!!!!
   }
 
+  private applyVirtualPeerDefaults() {
+    this.noForwards = true;
+    this.isLikeGroup = false;
+    this.isAnyGroup = false;
+    this.isMegagroup = false;
+    this.isBroadcast = false;
+    this.isChannel = false;
+    this.isBot = false;
+    this.isForum = false;
+    this.isAllMessagesForum = false;
+    this.isAnonymousSending = false;
+    this.isUserBlocked = false;
+    this.isPremiumRequired = false;
+    this.isMonoforum = false;
+    this.isBotforum = false;
+    this.canManageDirectMessages = false;
+    this.isRestricted = false;
+  }
+
   public get requestHistoryOptionsPart(): RequestHistoryOptions {
     const options: RequestHistoryOptions = {
       peerId: this.peerId,
       threadId: this.threadId,
       monoforumThreadId: this.monoforumThreadId
     };
+    if(this.virtualPeer) {
+      options.virtualKey = this.virtualPeer.key;
+    }
 
     CHAT_SEARCH_KEYS.forEach((key) => {
       // @ts-ignore
@@ -1042,12 +1079,16 @@ export default class Chat extends EventListenerBase<{
 
     const samePeer = this.appImManager.isSamePeer(this, options);
     if(!samePeer) {
+      if(this.virtualPeer && this.virtualPeer.key !== options.virtualPeer?.key) {
+        unregisterVirtualChatSession(this.virtualPeer.key);
+      }
       this.appImManager.dispatchEvent('peer_changing', this);
       this.peerId = peerId || NULL_PEER_ID;
       this.threadId = threadId;
       this.monoforumThreadId = monoforumThreadId;
       this.isTemporaryThread = isTempId(threadId);
       this.middlewareHelper.clean();
+      this.virtualPeer = options.virtualPeer;
 
       createRoot((dispose) => {
         this.middlewareHelper.get().onClean(dispose);
@@ -1064,6 +1105,7 @@ export default class Chat extends EventListenerBase<{
 
     if(!peerId) {
       this.peerId = 0;
+      this.virtualPeer = undefined;
       let promise: Promise<any>;
 
       if(this.hasBackgroundSet() && this === this.appImManager.chats[0]) {
@@ -1216,7 +1258,8 @@ export default class Chat extends EventListenerBase<{
 
     if(this.container) {
       this.container.dataset.type = this.type === ChatType.Search ? 'chat' : this.type;
-      this.container.classList.toggle('can-click-date', [ChatType.Chat, ChatType.Discussion, ChatType.Saved].includes(this.type));
+      this.container.classList.toggle('can-click-date', [ChatType.Chat, ChatType.Discussion, ChatType.Saved, ChatType.Virtual].includes(this.type));
+      this.container.classList.toggle('is-virtual', this.type === ChatType.Virtual);
     }
 
     this.log.setPrefix('CHAT-' + peerId + '-' + this.type);
@@ -1227,6 +1270,20 @@ export default class Chat extends EventListenerBase<{
   }
 
   public getMessage(mid: number | FullMid) {
+    if(this.type === ChatType.Virtual && this.virtualPeer) {
+      const session = getVirtualChatSession(this.virtualPeer.key);
+      if(!session) {
+        return;
+      }
+
+      if(typeof(mid) === 'string') {
+        const {mid: parsedMid} = splitFullMid(mid);
+        return session.messagesByMid.get(parsedMid);
+      }
+
+      return session.messagesByMid.get(mid);
+    }
+
     if(typeof(mid) === 'string') {
       const {peerId, mid: _mid} = splitFullMid(mid);
       return apiManagerProxy.getMessageByPeer(peerId, _mid);
@@ -1300,6 +1357,10 @@ export default class Chat extends EventListenerBase<{
   }
 
   public canSend(action?: ChatRights) {
+    if(this.type === ChatType.Virtual) {
+      return Promise.resolve(false);
+    }
+
     if(isVerificationBot(this.peerId)) return Promise.resolve(false);
     if(this.type === ChatType.Saved && this.threadId !== this.peerId) {
       return Promise.resolve(false);
@@ -1309,6 +1370,10 @@ export default class Chat extends EventListenerBase<{
   }
 
   public isStartButtonNeeded() {
+    if(this.type === ChatType.Virtual) {
+      return Promise.resolve(false);
+    }
+
     return Promise.all([
       this.managers.appPeersManager.isBot(this.peerId),
       this.managers.appMessagesManager.getDialogOnly(this.peerId),
@@ -1383,6 +1448,10 @@ export default class Chat extends EventListenerBase<{
   }
 
   public isPinnedMessagesNeeded() {
+    if(this.type === ChatType.Virtual) {
+      return false;
+    }
+
     return this.type === ChatType.Chat || this.isForum;
   }
 

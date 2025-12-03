@@ -16,6 +16,7 @@ import rootScope from '../rootScope';
 import Chat, {ChatSearchKeys, ChatType} from '../../components/chat/chat';
 import PopupNewMedia, {getCurrentNewMediaPopup} from '../../components/popups/newMedia';
 import MarkupTooltip from '../../components/chat/markupTooltip';
+import {openAyuMomentsVirtualChat} from '../ayuMoments/virtualChat';
 import IS_TOUCH_SUPPORTED from '../../environment/touchSupport';
 import SetTransition from '../../components/singleTransition';
 import ChatDragAndDrop from '../../components/chat/dragAndDrop';
@@ -156,13 +157,20 @@ export type ChatSetPeerOptions = {
   entities?: MessageEntity[],
   call?: string | number,
   isDeleting?: boolean,
-  fromTemporaryThread?: boolean
+  fromTemporaryThread?: boolean,
+  virtualPeer?: VirtualPeerDescriptor
 } & Partial<ChatSearchKeys>;
 
 export type ChatSetInnerPeerOptions = Modify<ChatSetPeerOptions, {
   peerId: PeerId,
   type?: ChatType
 }>;
+
+export type VirtualPeerDescriptor = {
+  key: string;
+  title: string;
+  subtitle?: string;
+};
 
 export enum APP_TABS {
   CHATLIST,
@@ -1416,6 +1424,18 @@ export class AppImManager extends EventListenerBase<{
             break;
           }
         }
+      }
+
+      case '#/local/ayumoments': {
+        const peerParam = params.peer;
+        if(!peerParam) {
+          break;
+        }
+
+        const peerId = peerParam.toPeerId ? peerParam.toPeerId() : peerParam.toString().toPeerId();
+        const focusMid = params.mid ? +params.mid : undefined;
+        void openAyuMomentsVirtualChat({peerId, focusOriginalMid: focusMid, skipNavigation: true});
+        break;
       }
     }
 
@@ -2797,11 +2817,12 @@ export class AppImManager extends EventListenerBase<{
     this.managers.appMessagesManager.setTyping(this.chat.peerId, {_: cancel ? 'sendMessageCancelAction' : 'sendMessageChooseStickerAction'}, undefined, this.chat.threadId);
   }
 
-  public isSamePeer(options1: {peerId: PeerId, threadId?: number, monoforumThreadId?: PeerId, type?: ChatType}, options2: typeof options1) {
+  public isSamePeer(options1: {peerId: PeerId, threadId?: number, monoforumThreadId?: PeerId, type?: ChatType, virtualPeer?: VirtualPeerDescriptor}, options2: typeof options1) {
     return options1.peerId === options2.peerId &&
       options1.threadId === options2.threadId &&
       options1.monoforumThreadId === options2.monoforumThreadId &&
-      (typeof(options1.type) !== typeof(options2.type) || options1.type === options2.type);
+      (typeof(options1.type) !== typeof(options2.type) || options1.type === options2.type) &&
+      (options1.virtualPeer?.key === options2.virtualPeer?.key);
   }
 
   public giftPremium(peerId: PeerId) {

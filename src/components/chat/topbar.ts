@@ -1141,7 +1141,7 @@ export default class ChatTopbar {
     }
 
     return () => {
-      const canHaveSomeButtons = !(this.chat.type === ChatType.Pinned || this.chat.type === ChatType.Scheduled);
+      const canHaveSomeButtons = !(this.chat.type === ChatType.Pinned || this.chat.type === ChatType.Scheduled || this.chat.type === ChatType.Virtual);
       this.btnMute && this.btnMute.classList.toggle('hide', !isBroadcast || !canHaveSomeButtons);
       if(this.btnJoin) {
         if(isBroadcast && !this.chat.isRestricted && canHaveSomeButtons) {
@@ -1206,9 +1206,14 @@ export default class ChatTopbar {
       }
 
       setTitleCallback();
-      setStatusCallback?.();
-
-      this.subtitle.classList.toggle('hide', !setStatusCallback);
+      if(this.chat.type === ChatType.Virtual && this.chat.virtualPeer) {
+        const text = this.chat.virtualPeer.subtitle || '';
+        replaceContent(this.subtitle, text ? document.createTextNode(text) : document.createElement('span'));
+        this.subtitle.classList.toggle('hide', !text);
+      } else {
+        setStatusCallback?.();
+        this.subtitle.classList.toggle('hide', !setStatusCallback);
+      }
       this.setMutedState();
 
       this.container.classList.remove('hide');
@@ -1265,7 +1270,11 @@ export default class ChatTopbar {
     oldMiddlewareHelper?.destroy();
     const middlewareHelper = this.titleMiddlewareHelper = getMiddleware();
     const middleware = middlewareHelper.get();
-    if(this.chat.type === ChatType.Pinned) {
+    if(this.chat.type === ChatType.Virtual && this.chat.virtualPeer) {
+      titleEl = document.createElement('div');
+      titleEl.textContent = this.chat.virtualPeer.title;
+      return () => replaceContent(this.title, titleEl);
+    } else if(this.chat.type === ChatType.Pinned) {
       if(count === undefined) titleEl = i18n('Loading');
       else titleEl = i18n('PinnedMessagesCount', [count]);
 
