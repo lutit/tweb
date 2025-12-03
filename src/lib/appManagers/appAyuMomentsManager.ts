@@ -384,4 +384,9 @@ export default class AppAyuMomentsManager extends AppManager {
     return Array.from(this.deletedByKey.values()).some((entry) => entry.peerId === peerId);
   }
 
+  public async hasEditedMomentsForPeer(peerId: PeerId) {
+    await this.ensureReady();
+    return Array.from(this.editsByKey.values()).some((entry) => entry.peerId === peerId);
+  }
+
 }

@@ -6,12 +6,15 @@ import {toastNew} from '../../components/toast';
 import {ChatType} from '../../components/chat/chat';
 import appImManager, {VirtualPeerDescriptor} from '../appManagers/appImManager';
 import type {MyMessage} from '../appManagers/appMessagesManager';
+import type {Message} from '../../layer';
 import {AyuDeletedMoment, AyuEditHistory, AyuMomentReason, AyuMomentType} from './types';
 import rootScope from '../rootScope';
 import {i18n} from '../langPack';
 import {registerVirtualChatSession} from '../virtualChats/registry';
 import appNavigationController from '../../components/appNavigationController';
 import createHistoryStorage from '../appManagers/utils/messages/createHistoryStorage';
+
+type AyuMomentsChatMode = 'deleted' | 'edited';
 
 type BuildSessionOptions = {
   peerId: PeerId;
@@ -36,9 +39,12 @@ export type AyuMomentsVirtualChatOptions = {
   peerId: PeerId;
   focusOriginalMid?: number;
   skipNavigation?: boolean;
+  mode?: AyuMomentsChatMode;
+  editedFilterMid?: number;
 };
 
 export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOptions) {
+  const mode: AyuMomentsChatMode = options.mode ?? 'deleted';
   const manager = rootScope.managers?.appAyuMomentsManager;
   if(!manager) {
     toastNew({langPackKey: 'ClientSettings.AyuMoments.EmptyDeleted'});
@@ -47,22 +53,34 @@ export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOp
 
   if(!options.skipNavigation) {
     const params = new URLSearchParams({
-      peer: String(options.peerId)
+      peer: String(options.peerId),
+      mode
     });
     if(options.focusOriginalMid) {
       params.set('mid', String(options.focusOriginalMid));
+    }
+    if(options.editedFilterMid) {
+      params.set('filter', String(options.editedFilterMid));
     }
     appNavigationController.overrideHash(`#/local/ayumoments?${params.toString()}`);
   }
 
   const snapshot = await manager.getPeerSnapshot(options.peerId);
-  const entries = normalizeSnapshot(snapshot.deleted, snapshot.edits, options.peerId);
+  const entries = normalizeSnapshot({
+    deleted: snapshot.deleted,
+    edits: snapshot.edits,
+    peerId: options.peerId,
+    mode,
+    editedFilterMid: options.editedFilterMid
+  });
   if(!entries.length) {
-    toastNew({langPackKey: 'ClientSettings.AyuMoments.EmptyDeleted'});
+    toastNew({
+      langPackKey: mode === 'edited' ? 'ClientSettings.AyuMoments.EmptyEdits' : 'ClientSettings.AyuMoments.EmptyDeleted'
+    });
     return;
   }
 
-  const sessionKey = generateSessionKey();
+  const sessionKey = generateSessionKey(mode);
   const {historyStorage, historyKey, focusVirtualMid, lastMid, messagesMap} = buildVirtualSession({
     peerId: options.peerId,
     focusOriginalMid: options.focusOriginalMid,
@@ -70,7 +88,10 @@ export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOp
   }, sessionKey);
 
   const peerTitle = await getPeerTitle({peerId: options.peerId, plainText: true});
-  const title = i18n('ClientSettings.AyuMoments.Popup.Title.Chat', [peerTitle]).textContent || peerTitle;
+  const title = (mode === 'edited' ?
+    i18n('ClientSettings.AyuMoments.Popup.Title.Edits', [peerTitle]) :
+    i18n('ClientSettings.AyuMoments.Popup.Title.Chat', [peerTitle])
+  ).textContent || peerTitle;
   const subtitle = i18n('SavedMessagesCount', [entries.length]).textContent || String(entries.length);
 
   registerVirtualChatSession({
@@ -96,33 +117,54 @@ export async function openAyuMomentsVirtualChat(options: AyuMomentsVirtualChatOp
   });
 }
 
-function normalizeSnapshot(deleted: AyuDeletedMoment[], edits: AyuEditHistory[], peerId: PeerId) {
+function normalizeSnapshot({
+  deleted,
+  edits,
+  peerId,
+  mode,
+  editedFilterMid
+}: {
+  deleted: AyuDeletedMoment[],
+  edits: AyuEditHistory[],
+  peerId: PeerId,
+  mode: AyuMomentsChatMode,
+  editedFilterMid?: number
+}) {
   const entries: VirtualMomentEntry[] = [];
 
-  deleted.forEach((moment) => {
-    entries.push({
-      message: copy(moment.message),
-      capturedAt: moment.timestamp,
-      originalMid: moment.messageId,
-      reason: moment.reason,
-      type: 'deleted',
-      snapshotId: moment.id
-    });
-  });
-
-  edits.forEach((history) => {
-    history.revisions.forEach((revision) => {
+  if(mode === 'deleted') {
+    deleted.forEach((moment) => {
       entries.push({
-        message: copy(revision.message),
-        capturedAt: revision.timestamp,
-        originalMid: revision.messageId,
-        reason: revision.reason,
-        type: 'edited',
-        revision: revision.revision,
-        snapshotId: revision.id
+        message: copy(moment.message),
+        capturedAt: moment.timestamp,
+        originalMid: moment.messageId,
+        reason: moment.reason,
+        type: 'deleted',
+        snapshotId: moment.id
       });
     });
-  });
+  } else {
+    edits.forEach((history) => {
+      if(editedFilterMid && history.messageId !== editedFilterMid) {
+        return;
+      }
+      history.revisions.forEach((revision) => {
+        const clonedMessage = copy(revision.message);
+        delete (clonedMessage as Message.message).edit_date;
+        (clonedMessage as Message.message).pFlags ||= {};
+        (clonedMessage as Message.message).pFlags.edit_hide = true;
+        entries.push({
+          message: clonedMessage,
+          capturedAt: revision.timestamp,
+          originalMid: revision.messageId,
+          reason: revision.reason,
+          type: 'edited',
+          revision: revision.revision,
+          snapshotId: revision.id
+        });
+      });
+    });
+  }
 
   entries.forEach((entry) => {
     entry.message.peerId = peerId;
@@ -198,6 +240,6 @@ function buildMessagesIndex(entries: VirtualMomentEntry[]) {
   return {map, mids, byOriginalMid};
 }
 
-function generateSessionKey() {
-  return `${SESSION_PREFIX}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+function generateSessionKey(mode: AyuMomentsChatMode) {
+  return `${SESSION_PREFIX}-${mode}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }

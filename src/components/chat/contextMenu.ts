@@ -665,7 +665,12 @@ export default class ChatContextMenu {
     }, this.createDetailsSubmenu) as ChatContextMenuButton, {
       icon: 'timer',
       text: 'ClientSettings.AyuMoments.Context.History',
-      onClick: () => openAyuMomentsVirtualChat({peerId: this.peerId, focusOriginalMid: this.mid}),
+      onClick: () => openAyuMomentsVirtualChat({
+        peerId: this.peerId,
+        focusOriginalMid: this.mid,
+        mode: 'edited',
+        editedFilterMid: this.mid
+      }),
       verify: async() => {
         if(this.chat.selection.isSelecting) return false;
         if(!this.message || this.message._ !== 'message') return false;

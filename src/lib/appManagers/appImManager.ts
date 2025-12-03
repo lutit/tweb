@@ -1434,7 +1434,15 @@ export class AppImManager extends EventListenerBase<{
 
         const peerId = peerParam.toPeerId ? peerParam.toPeerId() : peerParam.toString().toPeerId();
         const focusMid = params.mid ? +params.mid : undefined;
-        void openAyuMomentsVirtualChat({peerId, focusOriginalMid: focusMid, skipNavigation: true});
+        const modeParam = params.mode === 'edited' ? 'edited' : 'deleted';
+        const filterMid = params.filter ? +params.filter : undefined;
+        void openAyuMomentsVirtualChat({
+          peerId,
+          focusOriginalMid: focusMid,
+          skipNavigation: true,
+          mode: modeParam,
+          editedFilterMid: filterMid
+        });
         break;
       }
     }
