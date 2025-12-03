@@ -143,13 +143,13 @@ export type StateSettings = {
     },
     forceCopy?: boolean,
     ayuMoments?: {
-      enabled: boolean,
       saveDeleted: boolean,
       saveEdited: boolean,
       includeBots: boolean,
       saveReactions: boolean,
       keepLocallyPrompt: boolean,
-      keepLocallyDefaultOn: boolean
+      keepLocallyDefaultOn: boolean,
+      expanded?: boolean
     },
     profile?: {
       idFormat: 'hide' | 'botApi' | 'telegramApi',
@@ -466,13 +466,13 @@ export const SETTINGS_INIT: StateSettings = {
     },
     forceCopy: true,
     ayuMoments: {
-      enabled: true,
       saveDeleted: true,
       saveEdited: true,
       includeBots: false,
       saveReactions: true,
       keepLocallyPrompt: true,
-      keepLocallyDefaultOn: false
+      keepLocallyDefaultOn: false,
+      expanded: true
     },
     profile: {
       idFormat: 'botApi',

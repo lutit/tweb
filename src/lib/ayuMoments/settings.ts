@@ -8,12 +8,13 @@ export function getAyuMomentsSettings(settings: StateSettings = rootScope.settin
 }
 
 export function isAyuMomentsEnabled(settings?: StateSettings) {
-  return !!getAyuMomentsSettings(settings)?.enabled;
+  const ayu = getAyuMomentsSettings(settings);
+  return !!(ayu && (ayu.saveDeleted || ayu.saveEdited));
 }
 
 export function shouldShowKeepLocallyPrompt(settings?: StateSettings) {
   const ayu = getAyuMomentsSettings(settings);
-  return !!(ayu && ayu.enabled && ayu.saveDeleted && ayu.keepLocallyPrompt);
+  return !!(ayu && ayu.saveDeleted && ayu.keepLocallyPrompt);
 }
 
 export function isKeepLocallyDefaultOn(settings?: StateSettings) {

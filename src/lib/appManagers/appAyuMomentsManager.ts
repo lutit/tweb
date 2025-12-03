@@ -107,7 +107,7 @@ export default class AppAyuMomentsManager extends AppManager {
 
   private shouldCaptureDeletion(peerId: PeerId) {
     const settings = this.settingsCache;
-    if(!settings?.enabled || !settings.saveDeleted) {
+    if(!settings?.saveDeleted) {
       return false;
     }
 
@@ -117,7 +117,7 @@ export default class AppAyuMomentsManager extends AppManager {
 
   private shouldCaptureEdit(peerId: PeerId) {
     const settings = this.settingsCache;
-    if(!settings?.enabled || !settings.saveEdited) {
+    if(!settings?.saveEdited) {
       return false;
     }
 

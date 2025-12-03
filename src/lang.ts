@@ -3912,7 +3912,7 @@ const lang = {
   'ClientSettings.Id.Format.TelegramApi': 'Telegram API',
 
   'ClientSettings.AyuMoments': 'Ayu moments',
-  'ClientSettings.AyuMoments.Enable': 'Enable Ayu moments history',
+  'ClientSettings.AyuMoments.Capture': 'History capture options',
   'ClientSettings.AyuMoments.SaveDeleted': 'Save deleted messages',
   'ClientSettings.AyuMoments.SaveEdited': 'Save edited messages',
   'ClientSettings.AyuMoments.IncludeBots': 'Track bot chats',

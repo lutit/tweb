@@ -51,7 +51,7 @@
   "ClientSettings.Id.Format.TelegramApi": "Telegram API",
 
   "ClientSettings.AyuMoments": "Ayu моменты",
-  "ClientSettings.AyuMoments.Enable": "Включить Ayu моменты",
+  "ClientSettings.AyuMoments.Capture": "Параметры сохранения",
   "ClientSettings.AyuMoments.SaveDeleted": "Сохранять удалённые сообщения",
   "ClientSettings.AyuMoments.SaveEdited": "Сохранять правки",
   "ClientSettings.AyuMoments.IncludeBots": "Отслеживать ботов",
