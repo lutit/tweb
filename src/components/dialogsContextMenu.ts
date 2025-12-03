@@ -137,7 +137,7 @@ export default class DialogsContextMenu {
       text: 'ClientSettings.AyuMoments.Context.ChatHistory',
       onClick: () => openAyuMomentsVirtualChat({peerId: this.peerId, mode: 'deleted'}),
       verify: async() => !!this.managers.appAyuMomentsManager &&
-        await this.managers.appAyuMomentsManager.hasDeletedMomentsForPeer(this.peerId)
+        this.managers.appAyuMomentsManager.hasDeletedMomentsForPeer(this.peerId)
     }, createSubmenuTrigger({
       icon: 'folder',
       text: 'AddToFolder',

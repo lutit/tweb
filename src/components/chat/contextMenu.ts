@@ -412,13 +412,12 @@ export default class ChatContextMenu {
       if(!groupedItem && this.groupedMessages) this.message = getMainGroupedMessage(this.groupedMessages);
       this.mainMessage = this.groupedMessages ? getMainGroupedMessage(this.groupedMessages) : this.message;
       this.selectedMessages = this.chat.selection.isSelecting && !avatar ? await this.chat.selection.getSelectedMessages() : undefined;
-    if(this.chat.type === ChatType.Virtual) {
-      this.noForwards = false;
-    } else {
-      this.noForwards = this.message && !isSponsored &&
-        !(await Promise.all((this.selectedMessages || [this.message])
-          .map((message) => this.managers.appMessagesManager.canForward(message)))).every(Boolean);
-    }
+      if(this.chat.type === ChatType.Virtual) {
+        this.noForwards = false;
+      } else {
+        this.noForwards = this.message && !isSponsored &&
+          !(await Promise.all((this.selectedMessages || [this.message]).map((message) => this.managers.appMessagesManager.canForward(message)))).every(Boolean);
+      }
       this.viewerPeerId = undefined;
       this.canOpenReactedList = undefined;
       this.linkToMessage = await this.getUrlToMessage();
@@ -1878,8 +1877,7 @@ export default class ChatContextMenu {
   };
 
   private collectVirtualMessages(peerId: PeerId, mids: number[]) {
-    return mids.map((mid) => this.chat.getMessageByPeer(peerId, mid))
-      .filter(Boolean) as MyMessage[];
+    return mids.map((mid) => this.chat.getMessageByPeer(peerId, mid)).filter(Boolean) as MyMessage[];
   }
 
   private getVirtualSelectionMessages() {

@@ -329,25 +329,19 @@ export default class AppAyuMomentsManager extends AppManager {
       return;
     }
 
-    const ids = Array.from(this.entries.values())
-      .filter((entry) => entry.type === type)
-      .map((entry) => entry.id);
+    const ids = Array.from(this.entries.values()).filter((entry) => entry.type === type).map((entry) => entry.id);
 
     ids.forEach((id) => this.removeSnapshot(id));
   }
 
   public async getDeletedMoments() {
     await this.ensureReady();
-    return Array.from(this.deletedByKey.values())
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .map((entry) => copy(entry));
+    return Array.from(this.deletedByKey.values()).sort((a, b) => b.timestamp - a.timestamp).map((entry) => copy(entry));
   }
 
   public async getEditHistories() {
     await this.ensureReady();
-    return Array.from(this.editsByKey.values())
-      .sort((a, b) => b.lastUpdatedAt - a.lastUpdatedAt)
-      .map((history) => copy(history));
+    return Array.from(this.editsByKey.values()).sort((a, b) => b.lastUpdatedAt - a.lastUpdatedAt).map((history) => copy(history));
   }
 
   public async getSnapshot() {
@@ -370,12 +364,8 @@ export default class AppAyuMomentsManager extends AppManager {
 
   public async getPeerSnapshot(peerId: PeerId) {
     await this.ensureReady();
-    const deleted = Array.from(this.deletedByKey.values())
-      .filter((entry) => entry.peerId === peerId)
-      .map((entry) => copy(entry));
-    const edits = Array.from(this.editsByKey.values())
-      .filter((entry) => entry.peerId === peerId)
-      .map((entry) => copy(entry));
+    const deleted = Array.from(this.deletedByKey.values()).filter((entry) => entry.peerId === peerId).map((entry) => copy(entry));
+    const edits = Array.from(this.editsByKey.values()).filter((entry) => entry.peerId === peerId).map((entry) => copy(entry));
     return {deleted, edits};
   }
 
@@ -388,5 +378,4 @@ export default class AppAyuMomentsManager extends AppManager {
     await this.ensureReady();
     return Array.from(this.editsByKey.values()).some((entry) => entry.peerId === peerId);
   }
-
 }

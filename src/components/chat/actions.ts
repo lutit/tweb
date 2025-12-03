@@ -135,7 +135,7 @@ export default class ChatActions extends PinnedContainer {
   }
 
   public set(peerId: PeerId, settings: PeerSettings) {
-    let supportedActions = settings?.pFlags ?
+    const supportedActions = settings?.pFlags ?
       this.actions.filter((action) => settings.pFlags[action.key]) :
       [];
     if(!supportedActions.length) {

@@ -195,7 +195,7 @@ export default class AppClientSessionSpoofTab extends SliderSuperTab {
               isDanger: true
             }
           });
-        } catch {
+        } catch(err) {
           return;
         }
       }
