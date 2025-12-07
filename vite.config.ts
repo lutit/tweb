@@ -1,13 +1,12 @@
 import {defineConfig} from 'vitest/config';
 import solidPlugin from 'vite-plugin-solid';
 import handlebars from 'vite-plugin-handlebars';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 import {visualizer} from 'rollup-plugin-visualizer';
 import checker from 'vite-plugin-checker';
 // import devtools from 'solid-devtools/vite'
 import autoprefixer from 'autoprefixer';
 import {resolve} from 'path';
-import {existsSync, copyFileSync} from 'fs';
+import {existsSync, copyFileSync, readFileSync} from 'fs';
 import {ServerOptions} from 'vite';
 import {watchLangFile} from './watch-lang.js';
 import path from 'path';
@@ -31,9 +30,54 @@ const handlebarsPlugin = handlebars({
   }
 });
 
+const CERT_FILE_PATH = resolve(rootDir, 'certs', 'cert.pem');
+const KEY_FILE_PATH = resolve(rootDir, 'certs', 'key.pem');
+
+const resolveDevHost = (): ServerOptions['host'] => {
+  const hostFromEnv =
+    process.env.TWEB_DEV_HOST ||
+    process.env.VITE_HOST ||
+    process.env.HOST;
+
+  if(hostFromEnv === 'true') {
+    return true;
+  }
+
+  if(hostFromEnv === 'false') {
+    return false;
+  }
+
+  return hostFromEnv || true;
+};
+
+const resolveHttpsOptions = (): ServerOptions['https'] => {
+  const hasCert = existsSync(CERT_FILE_PATH);
+  const hasKey = existsSync(KEY_FILE_PATH);
+
+  if(!hasCert && !hasKey) {
+    return undefined;
+  }
+
+  if(!hasCert || !hasKey) {
+    console.warn('[dev] HTTPS certs directory is missing cert.pem or key.pem, falling back to HTTP.');
+    return undefined;
+  }
+
+  try {
+    return {
+      cert: readFileSync(CERT_FILE_PATH),
+      key: readFileSync(KEY_FILE_PATH)
+    };
+  } catch(error) {
+    console.warn('[dev] Failed to load HTTPS certificates, falling back to HTTP.', error);
+    return undefined;
+  }
+};
+
 const serverOptions: ServerOptions = {
-  // host: '192.168.95.17',
+  host: resolveDevHost(),
   port: 8080,
+  https: resolveHttpsOptions(),
   sourcemapIgnoreList(sourcePath, sourcemapPath) {
     return sourcePath.includes('node_modules') ||
       sourcePath.includes('logger') ||
@@ -47,13 +91,7 @@ const USE_SOLID_SRC = false;
 const SOLID_PATH = USE_SOLID_SRC ? SOLID_SRC_PATH : SOLID_BUILT_PATH;
 const USE_OWN_SOLID = existsSync(resolve(rootDir, SOLID_PATH));
 
-const USE_SSL = false;
-const USE_SSL_CERTS = false;
 const NO_MINIFY = false;
-const SSL_CONFIG: any = USE_SSL_CERTS && USE_SSL && {
-  name: '192.168.95.17',
-  certDir: './certs/'
-};
 
 const ADDITIONAL_ALIASES = {
   'solid-transition-group': resolve(rootDir, 'src/vendor/solid-transition-group')
@@ -133,7 +171,6 @@ export default defineConfig(({command}) => {
         dev: isServe
       }),
       handlebarsPlugin as any,
-      USE_SSL ? (basicSsl as any)(SSL_CONFIG) : undefined,
       enableAnalyzer ? visualizer({
         gzipSize: true,
         template: 'treemap',
