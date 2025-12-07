@@ -68,6 +68,7 @@ export default class PopupDeleteMessages {
     const canKeepLocally = !!ayuSettings?.saveDeleted;
     const keepCheckboxKey: LangPackKey = 'ClientSettings.AyuMoments.DeletePrompt';
     const showKeepCheckbox = canKeepLocally && shouldShowKeepLocallyPrompt();
+    const autoRevoke = !!rootScope.settings?.client?.chats?.alwaysDeleteForEveryone;
 
     const callback = async(e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, revoke?: boolean) => {
       onConfirm?.();
@@ -128,7 +129,8 @@ export default class PopupDeleteMessages {
     } else if(peerId.isUser()) {
       checkboxes.push({
         text: 'DeleteMessagesOptionAlso',
-        textArgs: [peerTitleElement]
+        textArgs: [peerTitleElement],
+        checked: autoRevoke
       });
     } else {
       const chat = await managers.appChatsManager.getChat(peerId.toChatId());
@@ -143,11 +145,13 @@ export default class PopupDeleteMessages {
         if(canRevoke.length) {
           if(canRevoke.length === mids.length) {
             checkboxes.push({
-              text: 'DeleteForAll'
+              text: 'DeleteForAll',
+              checked: autoRevoke
             });
           } else {
             checkboxes.push({
-              text: 'DeleteMessagesOption'
+              text: 'DeleteMessagesOption',
+              checked: autoRevoke
             });
 
             description = 'DeleteMessagesTextGroup';

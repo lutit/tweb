@@ -36,7 +36,18 @@ export default class AppClientSettingsChatsTab extends SliderSuperTab {
         listenerSetter: this.listenerSetter
       });
 
-      container.content.append(row.container, serviceTimeRow.container);
+      const autoDeleteForEveryoneRow = new Row({
+        titleLangKey: 'ClientSettings.Chats.AlwaysDeleteForEveryone',
+        checkboxField: new CheckboxField({
+          name: 'client-chats-always-delete-for-everyone',
+          stateKey: joinDeepPath('settings', 'client', 'chats', 'alwaysDeleteForEveryone'),
+          listenerSetter: this.listenerSetter,
+          toggle: true
+        }),
+        listenerSetter: this.listenerSetter
+      });
+
+      container.content.append(row.container, serviceTimeRow.container, autoDeleteForEveryoneRow.container);
 
       this.scrollable.append(container.container);
     }
@@ -73,4 +84,3 @@ export default class AppClientSettingsChatsTab extends SliderSuperTab {
     }
   }
 }
-

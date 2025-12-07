@@ -42,6 +42,8 @@ export default class PopupDeleteDialog {
       peerType = await managers.appPeersManager.getDialogType(monoforumParentPeerId || peerId, monoforumParentPeerId ? peerId : threadId);
     }
 
+    const autoRevoke = !!rootScope.settings?.client?.chats?.alwaysDeleteForEveryone;
+
     /* const callbackFlush = (checked: PopupPeerButtonCallbackCheckboxes) => {
       const promise = appMessagesManager.flushHistory(peerId, checkboxes ? !checked[checkboxes[0].text] : undefined);
       onSelect && onSelect(promise);
@@ -99,7 +101,8 @@ export default class PopupDeleteDialog {
           }];
 
           checkboxes = [{
-            text: 'DeleteChannelForAll'
+            text: 'DeleteChannelForAll',
+            checked: autoRevoke
           }];
         } else {
           title = 'LeaveChannelMenu';
@@ -166,7 +169,8 @@ export default class PopupDeleteDialog {
           text: 'DeleteMessagesOptionAlso',
           textArgs: [
             await wrapPeerTitle({peerId})
-          ]
+          ],
+          checked: autoRevoke
         }];
 
         break;
@@ -220,7 +224,8 @@ export default class PopupDeleteDialog {
           }];
 
           checkboxes = [{
-            text: 'DeleteChat.DeleteGroupForAll'
+            text: 'DeleteChat.DeleteGroupForAll',
+            checked: autoRevoke
           }];
         } else {
           title = 'LeaveMegaMenu';

@@ -124,7 +124,8 @@ export type StateSettings = {
     },
     chats: {
       showSecondsOnMessages: boolean,
-      showTimeOnServiceMessages: boolean
+      showTimeOnServiceMessages: boolean,
+      alwaysDeleteForEveryone?: boolean
     },
     premium?: {
       localPremium: boolean,
@@ -447,7 +448,8 @@ export const SETTINGS_INIT: StateSettings = {
     },
     chats: {
       showSecondsOnMessages: false,
-      showTimeOnServiceMessages: true
+      showTimeOnServiceMessages: true,
+      alwaysDeleteForEveryone: false
     },
     premium: {
       localPremium: false,

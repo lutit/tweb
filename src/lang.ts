@@ -3882,6 +3882,7 @@ const lang = {
   'ClientSettings.Chats': 'Chats',
   'ClientSettings.Chats.ShowSecondsOnMessages': 'Show seconds on messages',
   'ClientSettings.Chats.ShowTimeOnServiceMessages': 'Show time on service messages',
+  'ClientSettings.Chats.AlwaysDeleteForEveryone': 'Always preselect "Delete for everyone"',
   'ClientSettings.Confirmations': 'Confirmations',
   'ClientSettings.Confirmations.Stickers': 'For Stickers',
   'ClientSettings.Confirmations.Gifs': 'For GIFs',
