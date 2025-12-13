@@ -118,6 +118,27 @@ namespace I18n {
         langPack = await saveLangPack(langPack, false);
       }
 
+      try {
+        const overlayStrings = await loadCustomLangPackOverlay(langPack.lang_code);
+        if(overlayStrings?.length) {
+          const merged = new Map<string, LangPackString>();
+          for(const string of langPack.strings) {
+            merged.set(string.key, string);
+          }
+
+          for(const string of overlayStrings) {
+            merged.set(string.key, string);
+          }
+
+          langPack = {
+            ...langPack,
+            strings: Array.from(merged.values())
+          };
+        }
+      } catch(err) {
+        console.error('failed to merge custom lang pack overlay from cache', err);
+      }
+
       setLangCode(langPack.lang_code);
       applyLangPack(langPack);
       return langPack;
