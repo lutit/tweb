@@ -813,8 +813,13 @@ export class AppUsersManager extends AppManager {
 
   public getUserInput(id: UserId): InputUser {
     const user = this.getUser(id);
-    if(!id || (user.pFlags && user.pFlags.self)) {
+
+    if(!id || user?.pFlags?.self) {
       return {_: 'inputUserSelf'};
+    }
+
+    if(!user) {
+      return {_: 'inputUserEmpty'};
     }
 
     return {
@@ -824,12 +829,16 @@ export class AppUsersManager extends AppManager {
     };
   }
 
-  public getUserInputPeer(id: UserId): InputPeer.inputPeerSelf | InputPeer.inputPeerUser {
+  public getUserInputPeer(id: UserId): InputPeer.inputPeerSelf | InputPeer.inputPeerUser | InputPeer.inputPeerEmpty {
     const user = this.getUser(id);
     // ! do not use it, there are places that don't support it. need explicit peer id
     // if(user.pFlags?.self) {
     //   return {_: 'inputPeerSelf'};
     // }
+
+    if(!user) {
+      return {_: 'inputPeerEmpty'};
+    }
 
     return {
       _: 'inputPeerUser',

@@ -1289,7 +1289,9 @@ export default class ChatContextMenu {
         findUpClassName(withTarget, 'audio') ||
         findUpClassName(withTarget, 'media-sticker-wrapper') ||
         findUpClassName(withTarget, 'media-photo') ||
-        findUpClassName(withTarget, 'media-video'));
+        findUpClassName(withTarget, 'media-video') ||
+        findUpClassName(withTarget, 'media-round') ||
+        findUpClassName(withTarget, 'video-round-canvas'));
     }
 
     if(container && (message as Message.message).restriction_reason && isSensitive((message as Message.message).restriction_reason)) {

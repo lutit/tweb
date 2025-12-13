@@ -168,6 +168,13 @@ function normalizeSnapshot({
   }
 
   entries.forEach((entry) => {
+    const message = entry.message as Message.message | Message.messageService;
+    if(message._ === 'message' || message._ === 'messageService') {
+      delete (message as Message.message).reply_to;
+      delete (message as Message.message).reply_to_mid;
+      delete (message as Message.message).replies;
+    }
+
     entry.message.peerId = peerId;
   });
 

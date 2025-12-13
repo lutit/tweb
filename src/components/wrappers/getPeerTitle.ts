@@ -65,8 +65,17 @@ export default async function getPeerTitle(options: GetPeerTitleOptions): Promis
       }
     }
 
-    if(!title) title = !user || user.pFlags.deleted ? I18n.format(onlyFirstName ? 'Deleted' : 'HiddenName', true) : getPeerActiveUsernames(user)[0] || '';
-    else title = title.trim();
+    if(!title) {
+      if(!user) {
+        title = String(peerId.toUserId());
+      } else if(user.pFlags.deleted) {
+        title = I18n.format(onlyFirstName ? 'Deleted' : 'HiddenName', true);
+      } else {
+        title = getPeerActiveUsernames(user)[0] || '';
+      }
+    } else {
+      title = title.trim();
+    }
   } else {
     if(threadId) {
       const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
