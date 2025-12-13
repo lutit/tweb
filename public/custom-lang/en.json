@@ -127,6 +127,8 @@
   "Message.Context.Details.Resolution": "Resolution",
   "Message.Context.Details.Datacenter": "Datacenter",
 
+  "Sticker.Context.CopyDocumentId": "Copy document ID",
+
   "StickerSet.Details.Id": "Sticker set ID",
   "StickerSet.Details.AccessHash": "Access hash",
   "StickerSet.Details.ShortName": "Sticker set username",

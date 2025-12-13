@@ -129,6 +129,8 @@
   "Message.Context.Details.Resolution": "Разрешение",
   "Message.Context.Details.Datacenter": "Дата-центр",
 
+  "Sticker.Context.CopyDocumentId": "Скопировать document ID",
+
   "StickerSet.Details.Id": "ID набора стикеров",
   "StickerSet.Details.AccessHash": "Access hash",
   "StickerSet.Details.ShortName": "Юзернейм набора",

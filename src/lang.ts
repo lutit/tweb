@@ -3149,6 +3149,7 @@ const lang = {
   'ChannelVisibility.Confirm.MakePrivate.Channel': 'If you make this channel private, the name @%@ will be removed. Anyone else will be able to take it for their public groups or channels.',
   'ChannelVisibility.Confirm.MakePrivate.Group': 'If you make this group private, the name @%@ will be removed. Anyone else will be able to take it for their public groups or channels.',
   'Context.ViewStickerSet': 'View Sticker Set',
+  'Sticker.Context.CopyDocumentId': 'Copy document ID',
   'CreateGroup.NameHolder': 'Group Name',
   'CustomEmoji.PremiumAlert': 'Subscribe to Telegram Premium to unlock this emoji. [Read More]()',
   'Date.Today': 'Today',

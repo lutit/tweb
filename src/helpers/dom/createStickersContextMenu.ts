@@ -81,6 +81,15 @@ export default function createStickersContextMenu({
       }
     }
   }, {
+    icon: 'copy',
+    text: 'Sticker.Context.CopyDocumentId',
+    onClick: () => {
+      if(doc?.id) {
+        copyTextToClipboard(String(doc.id));
+      }
+    },
+    verify: () => !!doc?.id
+  }, {
     icon: 'stickers_face',
     text: 'ViewPackPreview',
     onClick: () => {
@@ -114,6 +123,15 @@ export default function createStickersContextMenu({
     text: 'Context.ViewStickerSet',
     onClick: () => PopupElement.createPopup(PopupStickers, doc.stickerSetInput, false, chatInput).show(),
     verify: () => !isPack && !isGif
+  }, {
+    icon: 'copy',
+    text: 'Sticker.Context.CopyDocumentId',
+    onClick: () => {
+      if(doc?.id) {
+        copyTextToClipboard(String(doc.id));
+      }
+    },
+    verify: () => !!doc?.id
   }, {
     icon: isGif ? 'gifs' : 'favourites',
     text: isGif ? 'SaveToGIFs' : 'AddToFavorites',
