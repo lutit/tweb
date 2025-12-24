@@ -4,7 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import type {Message, StickerSet, Update, NotifyPeer, PeerNotifySettings, PollResults, Poll, WebPage, GroupCall, GroupCallParticipant, ReactionCount, MessagePeerReaction, PhoneCall, Config, Reaction, AttachMenuBot, PeerSettings, StoryItem, PeerStories, SavedDialog, SavedReactionTag, InputSavedStarGift, LangPackDifference, StarsAmount, MessageEntity} from '../layer';
+import type {Message, StickerSet, Update, NotifyPeer, PeerNotifySettings, PollResults, Poll, WebPage, GroupCall, GroupCallParticipant, ReactionCount, MessagePeerReaction, PhoneCall, Config, Reaction, AttachMenuBot, PeerSettings, StoryItem, PeerStories, SavedDialog, SavedReactionTag, InputSavedStarGift, LangPackDifference, StarsAmount, MessageEntity, HelpPromoData} from '../layer';
 import type {Dialog, ForumTopic, MessagesStorageKey, MyMessage} from './appManagers/appMessagesManager';
 import type {MyDialogFilter} from './storages/filters';
 import type {AnyDialog, Folder} from './storages/dialogs';
@@ -30,6 +30,8 @@ import {MOUNT_CLASS_TO} from '../config/debug';
 import MTProtoMessagePort from './mtproto/mtprotoMessagePort';
 import {ActiveAccountNumber} from './accounts/types';
 import type {AyuMomentsUpdatePayload} from './ayuMoments/types';
+import type {MyStarGift} from './appManagers/appGiftsManager';
+import type {MyPromoData} from './appManagers/appPromoManager';
 
 export type BroadcastEvents = {
   'chat_full_update': ChatId,
@@ -230,6 +232,7 @@ export type BroadcastEvents = {
   },
   'my_pinned_stargifts': {gifts: InputSavedStarGift[]},
   'star_gift_list_update': {peerId: PeerId},
+  'star_gift_upgrade': {gift: MyStarGift, savedId?: Long, fromMsgId?: number},
 
   'insufficent_stars_for_message': {messageCount: number, requestId: number, invokeApiArgs: Parameters<ApiManager['invokeApi']>, reservedStars?: number};
 
@@ -240,6 +243,7 @@ export type BroadcastEvents = {
   'monoforum_draft_update': {dialog: MonoforumDialog},
 
   'botforum_pending_topic_created': {peerId: PeerId, tempId: number, newId?: number},
+  'promo_data_update': MyPromoData,
 };
 
 export type BroadcastEventsListeners = {

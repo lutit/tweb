@@ -62,6 +62,7 @@ import type {AppLangPackManager} from './appLangPackManager';
 import type AppAyuMomentsManager from './appAyuMomentsManager';
 import {logger, LogTypes} from '../logger';
 import {ActiveAccountNumber} from '../accounts/types';
+import type AppPromoManager from './appPromoManager';
 
 export class AppManager {
   private accountNumber: ActiveAccountNumber;
@@ -122,6 +123,7 @@ export class AppManager {
   protected appGiftsManager: AppGiftsManager;
   protected monoforumDialogsStorage: MonoforumDialogsStorage;
   protected appAyuMomentsManager: AppAyuMomentsManager;
+  protected appPromoManager: AppPromoManager;
 
   protected name: string;
   public log: ReturnType<typeof logger>;
