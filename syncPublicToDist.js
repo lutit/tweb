@@ -51,7 +51,16 @@ function main() {
   ensureDistExists();
 
   const subdirs = ['assets', 'custom-lang', 'changelogs'];
-  const rootFiles = ['_redirects', '_headers', '404.html'];
+  const rootFiles = [
+    '_redirects',
+    '_headers',
+    '404.html',
+    'recorder.min.js',
+    'decoderWorker.min.js',
+    'encoderWorker.min.js',
+    'waveWorker.min.js'
+  ];
+  const rootExtensions = ['.wasm'];
 
   for (const dir of subdirs) {
     const src = path.join(publicDir, dir);
@@ -72,6 +81,22 @@ function main() {
     }
 
     const dest = path.join(distDir, file);
+    console.log(`syncPublicToDist: copying ${src} -> ${dest}`);
+    fs.copyFileSync(src, dest);
+  }
+
+  const rootEntries = fs.readdirSync(publicDir, {withFileTypes: true});
+  for (const entry of rootEntries) {
+    if (!entry.isFile()) {
+      continue;
+    }
+
+    if (!rootExtensions.some((ext) => entry.name.endsWith(ext))) {
+      continue;
+    }
+
+    const src = path.join(publicDir, entry.name);
+    const dest = path.join(distDir, entry.name);
     console.log(`syncPublicToDist: copying ${src} -> ${dest}`);
     fs.copyFileSync(src, dest);
   }
